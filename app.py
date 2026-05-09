@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, redirect, url_for
+from datetime import datetime
+
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import json
 
 app = Flask(__name__)
@@ -11,8 +13,13 @@ def load_data():
         addons = json.load(file)
     return headphones, addons
 
+def calculate_total(cart):
+    total = sum(item['price'] * item['quantity'] for item in cart.values())
+    return total
+
+@app.route('/')
 @app.route('/home')
-def index():
+def home():
     headphones, addons = load_data()
     cart = session.get('cart', {})
     total = calculate_total(cart)
@@ -21,28 +28,27 @@ def index():
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     headphones, addons = load_data()
-    cart = session.get('cart', {})               # get cart from session or start fresh
-    quantity = int(request.form['quantity'])      # convert quantity to a number
+    cart = session.get('cart', {})
+    quantity = int(request.form['quantity'])
 
-
-    if 'headphone' in request.form:              # headphone form was submitted
-        item = request.form['headphone']  
-        color = request.form.get('color', 'Default')       # get selected headphone name
+    if 'headphone' in request.form:
+        item = request.form['headphone']
+        color = request.form.get('color', 'Default')
         if item not in headphones:
             flash("Invalid headphone selected.", item)
-            return redirect(url_for('index'))
+            return redirect(url_for('home'))
         price = headphones[item]['price']
 
-    elif 'addon' in request.form:               # addon form was submitted
-        item = request.form['addon']            # get selected addon name
+    elif 'addon' in request.form:
+        item = request.form['addon']
         if item not in addons:
             flash("Invalid addon selected.", item)
-            return redirect(url_for('index'))
+            return redirect(url_for('home'))
         price = addons[item]['price']
         color = None
 
     if item in cart:
-        cart[item]['quantity'] += quantity       # add to existing quantity
+        cart[item]['quantity'] += quantity
     else:
         cart[item] = {
             'price': price,
@@ -50,10 +56,10 @@ def add_to_cart():
             'color': color
         }
 
-    session['cart'] = cart                       # update session
-    session.modified = True                      # force Flask to save it
+    session['cart'] = cart
+    session.modified = True
     flash(f"{quantity} x {item} added to cart.", item)
-    return redirect(url_for('index'))
+    return redirect(url_for('home'))
 
 @app.route('/remove_from_cart/<item>')
 def remove_from_cart(item):
@@ -63,15 +69,38 @@ def remove_from_cart(item):
         session['cart'] = cart
         session.modified = True
         flash(f"Removed all {item.capitalize()} from the cart.", 'removed')
-    return redirect(url_for('index'))
+    return redirect(url_for('home'))
 
-def calculate_total(cart):
-    total = sum(item['price'] * item['quantity'] for item in cart.values())
-    return total
-
-@app.route('/checkout')
+@app.route('/checkout', methods=['POST'])
 def checkout():
-    return render_template('checkout.html')
+    customer_name = request.form['customer_name_checkout'].strip().title()
+
+    if not customer_name:
+        flash("Customer name is required.")
+        return redirect(url_for('home'))
+
+    cart = session.get('cart', {})
+
+    if not cart:
+        flash("Your cart is empty.")
+        return redirect(url_for('home'))
+
+    headphones_cart = {k: v for k, v in cart.items() if v['color'] is not None}
+    addons_cart     = {k: v for k, v in cart.items() if v['color'] is None}
+
+    total = calculate_total(cart)
+    invoice_date   = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    invoice_number = f"INV_{customer_name.replace(' ', '_')}_{invoice_date}"
+
+    return render_template(
+        'invoice.html',
+        customer_name  = customer_name,
+        headphones_cart = headphones_cart,
+        addons_cart    = addons_cart,
+        total          = total,
+        invoice_date   = invoice_date,
+        invoice_number = invoice_number,
+    )
 
 @app.route('/about')
 def about():

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}AudioZone - Invoice{% endblock %}
+
+{% block content %}
+<div class="invoice-section container">
+
+    <h1>Thank you, {{ customer_name }}!</h1>
+    <p>Your order has been received. Here is your invoice summary.</p>
+
+    <p><strong>Invoice Number:</strong> {{ invoice_number }}</p>
+    <p><strong>Date:</strong> {{ invoice_date }}</p>
+
+    <!-- Headphones — always shown -->
+    <h2>Headphones</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Color</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item, details in headphones_cart.items() %}
+            <tr>
+                <td>{{ item }}</td>
+                <td>{{ details.color }}</td>
+                <td>{{ details.quantity }}</td>
+                <td>${{ details.price }}</td>
+                <td>${{ details.quantity * details.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Add-ons — only shown if any exist -->
+    {% if addons_cart %}
+    <h2>Add-ons</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item, details in addons_cart.items() %}
+            <tr>
+                <td>{{ item }}</td>
+                <td>{{ details.quantity }}</td>
+                <td>${{ details.price }}</td>
+                <td>${{ details.quantity * details.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <h3>Grand Total: ${{ total }}</h3>
+
+    <p><em>This is a temporary invoice. A full receipt will be saved to your order history shortly.</em></p>
+
+    <a href="{{ url_for('home') }}">← Back to Shop</a>
+
+</div>
+{% endblock %}

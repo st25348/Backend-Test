@@ -137,6 +137,10 @@
         <div class="cart-total">
             <h3>Total: ${{ total }}</h3>
         </div>
+        <form action="{{ url_for('checkout') }}" method="post">
+            <input type="text" name="customer_name_checkout" required>
+            <button type="submit" class="btn btn-primary">Checkout</button>
+        </form>
     {% else %}
         <p class="empty-cart-message">
             Your cart is empty — browse our collection above and add something you love.
