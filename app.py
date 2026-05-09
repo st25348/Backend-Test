@@ -26,18 +26,16 @@ def add_to_cart():
     if 'headphone' in request.form:              # headphone form was submitted
         item = request.form['headphone']         # get selected headphone name
         if item not in headphones:
-            flash("Invalid headphone selected.", 'headphone')
+            flash("Invalid headphone selected.", 'item')
             return redirect(url_for('index'))
         price = headphones[item]['price']
-        category = 'headphone'
 
     elif 'addon' in request.form:               # addon form was submitted
         item = request.form['addon']            # get selected addon name
         if item not in addons:
-            flash("Invalid addon selected.", 'addon')
+            flash("Invalid addon selected.", 'item')
             return redirect(url_for('index'))
         price = addons[item]['price']
-        category = 'addon'
 
     if item in cart:
         cart[item]['quantity'] += quantity       # add to existing quantity
@@ -49,7 +47,16 @@ def add_to_cart():
 
     session['cart'] = cart                       # update session
     session.modified = True                      # force Flask to save it
-    flash(f"{quantity} x {item} added to cart.", category)
+    flash(f"{quantity} x {item} added to cart.", item)
+    return redirect(url_for('index'))
+
+@app.route('/remove_from_cart/<item>')
+def remove_from_cart(item):
+    cart = session.get('cart', {})
+    if item in cart:
+        del cart[item]
+        session['cart'] = cart
+        session.modified = True
     return redirect(url_for('index'))
 
 @app.route('/checkout')

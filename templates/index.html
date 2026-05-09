@@ -105,6 +105,7 @@
     <h2>Your Cart</h2>
     {% for item, details in cart.items() %}
         <p>{{ item }} — {{ details.quantity }} x ${{ details.price }} = ${{ details.quantity * details.price }}</p>
+        <a href="{{ url_for('remove_from_cart', item=item) }}" class="btn btn-danger">Remove</a>
     {% endfor %}
 </div>
 {% endif %}
