@@ -1,0 +1,46 @@
+/* Normalize CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    line-height: 1.15;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+a {
+    background-color: transparent;
+    text-decoration: none;
+}
+
+img {
+    border-style: none;
+    max-width: 100%;
+}
+
+button,
+input {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+}
+
+button {
+    overflow: visible;
+    text-transform: none;
+}
+
+button,
+[type="button"],
+[type="submit"] {
+    -webkit-appearance: button;
+    cursor: pointer;
+}

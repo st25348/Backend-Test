@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}AudioZone - Premium Headphones{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <video autoplay muted loop playsinline class="hero-video">
+          <source src="/static/Videos/headphone-hero.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-container">
+        <div class="hero-left">
+            <h1>AudioZone</h1>
+            <p class="hero-subtitle">Premium Audio Experience</p>
+            <p>Discover our curated collection of high-fidelity headphones.</p>
+            <a href="#products" class="hero-link">Explore Collection →</a>
+        </div>
+        
+        <div class="hero-center">
+            <!-- Video plays here in center -->
+        </div>
+        
+        <div class="hero-right">
+            <h2>Our Story</h2>
+            <p>At AudioZone, we believe that exceptional sound quality isn't just about technology—it's about passion.</p>
+            <p>Since our founding, we've been dedicated to bringing audiophiles the finest listening experiences through carefully curated, premium headphones.</p>
+            <p>Every product in our collection is chosen for its superior craftsmanship and acoustic excellence.</p>
+        </div>
+    </div>
+</div>
+
+<div class="products form container">
+  <form action="{{ url_for('add_to_cart') }}" method="post">
+    <fieldset>
+      <legend>Select Headphones</legend>
+
+      <select name="headphone" id="headphones">
+        {% for headphone, details in headphones.items() %}
+          <option value="{{ headphone }}">{{ headphone }} — ${{ details['price'] }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="quantity">Quantity</label>
+      <input type="number" name="quantity" value="1" min="1">
+
+      <button type="submit" class="btn btn-primary">Add to Cart</button>
+    </fieldset>
+  </form>
+  {% with messages = get_flashed_messages(category_filter=['headphone']) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for message in messages %}
+          <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+</div>
+
+<div class="addons form container">
+  <form action="{{ url_for('add_to_cart') }}" method="post">
+    <fieldset>
+      <legend>Select Addons</legend>
+
+      <select name="addon" id="addons">
+        {% for addon, details in addons.items() %}
+          <option value="{{ addon }}">{{ addon }} — ${{ details['price'] }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="quantity">Quantity</label>
+      <input type="number" name="quantity" value="1" min="1">
+
+      <button type="submit" class="btn btn-secondary">Add to Cart</button>
+    </fieldset>
+  </form>
+  {% with messages = get_flashed_messages(category_filter=['addon']) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for message in messages %}
+          <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+</div>
+
+{% endblock %}

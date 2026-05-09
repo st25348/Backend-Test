@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AudioZone - Premium Headphones{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/normalize.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">🎧 AudioZone</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/checkout">Checkout</a></li>
+                <li><a href="/orders">Orders</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-social">
+                <a href="#" title="Twitter">🐦</a>
+                <a href="#" title="Instagram">📷</a>
+                <a href="#" title="Facebook">👍</a>
+                <a href="#" title="YouTube">📺</a>
+            </div>
+            
+            <div class="footer-links">
+                <a href="/about">About Us</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+                <a href="#">FAQ</a>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 AudioZone. Premium headphones for audiophiles. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

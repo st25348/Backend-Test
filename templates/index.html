@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}AudioZone - Premium Headphones{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <video autoplay muted loop playsinline class="hero-video">
+          <source src="/static/Videos/headphone-hero.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-container">
+        <div class="hero-left">
+            <h1>AudioZone</h1>
+            <p class="hero-subtitle">Premium Audio Experience</p>
+            <p>Discover our curated collection of high-fidelity headphones.</p>
+            <a href="#products" class="hero-link">Explore Collection →</a>
+        </div>
+        
+        <div class="hero-center">
+            <!-- Video plays here in center -->
+        </div>
+        
+        <div class="hero-right">
+            <h2>Our Story</h2>
+            <p>At AudioZone, we believe that exceptional sound quality isn't just about technology—it's about passion.</p>
+            <p>Since our founding, we've been dedicated to bringing audiophiles the finest listening experiences through carefully curated, premium headphones.</p>
+            <p>Every product in our collection is chosen for its superior craftsmanship and acoustic excellence.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Headphones -->
+<div class="products container" id="products">
+    <div class="products-grid">
+        {% for headphone, details in headphones.items() %}
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ details.image }}" alt="{{ headphone }}">
+                </div>
+                <div class="product-info">
+                    <h2>{{ headphone }}</h2>
+                    <p class="product-description">{{ details.description }}</p>
+                    <p class="product-price">${{ details.price }}</p>
+                    <p class="product-stock">In Stock: {{ details.stock }}</p>
+
+                    <!-- individual form per headphone -->
+                    <form action="{{ url_for('add_to_cart') }}" method="post">
+                        <input type="hidden" name="headphone" value="{{ headphone }}">
+                        <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    </form>
+
+                    <!-- flash message only for this headphone -->
+                    {% with messages = get_flashed_messages(category_filter=[headphone]) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="flash-message">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Addons -->
+<div class="addons container">
+    <h2>Enhance Your Experience</h2>
+    <p>Explore our range of premium audio accessories designed to complement your headphones.</p>
+    <div class="addons-grid">
+        {% for addon, details in addons.items() %}
+            <div class="addon-card">
+                <div class="addon-info">
+                    <h2>{{ details.name }}</h2>
+                    <p class="addon-description">{{ details.description }}</p>
+                    <p class="addon-price">${{ details.price }}</p>
+                    <p class="addon-stock">In Stock: {{ details.stock }}</p>
+
+                    <!-- individual form per addon -->
+                    <form action="{{ url_for('add_to_cart') }}" method="post">
+                        <input type="hidden" name="addon" value="{{ details.name }}">
+                        <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
+                        <button type="submit" class="btn btn-secondary">Add to Cart</button>
+                    </form>
+
+                    <!-- flash message only for this addon -->
+                    {% with messages = get_flashed_messages(category_filter=[details.name]) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="flash-message">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Cart -->
+{% if cart %}
+<div class="container">
+    <h2>Your Cart</h2>
+    {% for item, details in cart.items() %}
+        <p>{{ item }} — {{ details.quantity }} x ${{ details.price }} = ${{ details.quantity * details.price }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

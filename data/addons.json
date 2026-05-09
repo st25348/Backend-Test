@@ -1,0 +1,26 @@
+{
+    "Premium Audio Cable": {
+        "name": "Premium Audio Cable",
+        "price": 29.99,
+        "description": "High-quality audio cable for enhanced sound",
+        "stock": 100
+    },
+    "Carrying Case": {
+        "name": "Carrying Case",
+        "price": 19.99,
+        "description": "Protective hard case for your headphones",
+        "stock": 150
+    },
+    "Extra Ear Pads": {
+        "name": "Extra Ear Pads",
+        "price": 15.99,
+        "description": "Replacement ear pads for comfort",
+        "stock": 200
+    },
+    "USB-C Adapter": {
+        "name": "USB-C Adapter",
+        "price": 12.99,
+        "description": "USB-C to 3.5mm audio adapter",
+        "stock": 100
+    }
+}

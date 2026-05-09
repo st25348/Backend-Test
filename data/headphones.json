@@ -1,0 +1,37 @@
+{
+  "AirPods Pro": {
+    "price": 249,
+    "stock": 50,
+    "description": "Active noise cancellation with spatial audio",
+    "image": "https://png.pngtree.com/png-vector/20231104/ourmid/pngtree-apple-airpods-pro-png-image_10477533.png",
+    "colors": ["White", "Black", "Starlight"]
+  },
+  "Sony WH-1000XM5": {
+    "price": 399,
+    "stock": 25,
+    "description": "Industry-leading noise cancellation",
+    "image": "https://cdn.pricespy.co.nz/product/standard/280/13508897.jpg",
+    "colors": ["Black", "Silver"]
+  },
+  "Bose QuietComfort 45": {
+    "price": 329,
+    "stock": 30,
+    "description": "Legendary comfort and sound quality",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUCBIC3Cuz9xvadd-c2K9M2NIXrsCHpTofmQ&s",
+    "colors": ["Black", "White Smoke", "Triple Black"]
+  },
+  "Beats Studio Pro": {
+    "price": 349,
+    "stock": 20,
+    "description": "Premium sound with spatial audio",
+    "image": "https://assets.kogan.com/files/product/2025/Beats_2025/HKI-BSTUPRONAV_1N.jpg",
+    "colors": ["Black", "Navy", "Sandstone", "Deep Brown"]
+  },
+  "Sennheiser Momentum 4": {
+    "price": 379,
+    "stock": 15,
+    "description": "Audiophile-grade wireless headphones",
+    "image": "https://hnsfpau.imgix.net/5/images/detailed/338/700386.01.jpg",
+    "colors": ["Black", "White"]
+  }
+}
