@@ -15,7 +15,8 @@ def load_data():
 def index():
     headphones, addons = load_data()
     cart = session.get('cart', {})
-    return render_template('index.html', headphones=headphones, addons=addons, cart=cart)  
+    total = calculate_total(cart)
+    return render_template('index.html', headphones=headphones, addons=addons, cart=cart, total=total)
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -23,26 +24,30 @@ def add_to_cart():
     cart = session.get('cart', {})               # get cart from session or start fresh
     quantity = int(request.form['quantity'])      # convert quantity to a number
 
+
     if 'headphone' in request.form:              # headphone form was submitted
-        item = request.form['headphone']         # get selected headphone name
+        item = request.form['headphone']  
+        color = request.form.get('color', 'Default')       # get selected headphone name
         if item not in headphones:
-            flash("Invalid headphone selected.", 'item')
+            flash("Invalid headphone selected.", item)
             return redirect(url_for('index'))
         price = headphones[item]['price']
 
     elif 'addon' in request.form:               # addon form was submitted
         item = request.form['addon']            # get selected addon name
         if item not in addons:
-            flash("Invalid addon selected.", 'item')
+            flash("Invalid addon selected.", item)
             return redirect(url_for('index'))
         price = addons[item]['price']
+        color = None
 
     if item in cart:
         cart[item]['quantity'] += quantity       # add to existing quantity
     else:
         cart[item] = {
             'price': price,
-            'quantity': quantity
+            'quantity': quantity,
+            'color': color
         }
 
     session['cart'] = cart                       # update session
@@ -57,7 +62,12 @@ def remove_from_cart(item):
         del cart[item]
         session['cart'] = cart
         session.modified = True
+        flash(f"Removed all {item.capitalize()} from the cart.", 'removed')
     return redirect(url_for('index'))
+
+def calculate_total(cart):
+    total = sum(item['price'] * item['quantity'] for item in cart.values())
+    return total
 
 @app.route('/checkout')
 def checkout():

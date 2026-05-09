@@ -6,6 +6,13 @@
     "image": "https://png.pngtree.com/png-vector/20231104/ourmid/pngtree-apple-airpods-pro-png-image_10477533.png",
     "colors": ["White", "Black", "Starlight"]
   },
+  "AirPods 3": {
+    "price": 199,
+    "stock": 55,
+    "description": "Active noise cancellation with spatial audio",
+    "image": "https://png.pngtree.com/png-clipart/20230504/ourmid/pngtree-airpods-png-image_7081756.png",
+    "colors": ["White", "Black", "midnight"]
+  },
   "Sony WH-1000XM5": {
     "price": 399,
     "stock": 25,
