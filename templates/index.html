@@ -32,6 +32,8 @@
 
 <!-- Headphones -->
 <div class="products container" id="products">
+    <h2>Our Catalogue</h2>
+    <p>Handpicked premium headphones for every kind of listener.</p>
     <div class="products-grid">
         {% for headphone, details in headphones.items() %}
             <div class="product-card">
@@ -47,14 +49,15 @@
                     <!-- individual form per headphone -->
                     <form action="{{ url_for('add_to_cart') }}" method="post">
                         <input type="hidden" name="headphone" value="{{ headphone }}">
+                        <label for="quantity">Quantity</label>
                         <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
-                        <button type="submit" class="btn btn-primary">Add to Cart</button>
                         <label>Color</label>
                         <select name="color">
                             {% for color in details.colors %}
                                 <option value="{{ color }}">{{ color }}</option>
                             {% endfor %}
                         </select>
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
                     </form>
 
                     <!-- flash message only for this headphone -->
@@ -87,6 +90,7 @@
                     <!-- individual form per addon -->
                     <form action="{{ url_for('add_to_cart') }}" method="post">
                         <input type="hidden" name="addon" value="{{ details.name }}">
+                        <label for="quantity">Quantity</label>
                         <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
                         <button type="submit" class="btn btn-secondary">Add to Cart</button>
                     </form>
@@ -106,23 +110,34 @@
 </div>
 
 <!-- Cart -->
-<div class="container">
+<div class="cart-section">
     <h2>Your Cart</h2>
 
     {% with messages = get_flashed_messages(category_filter=['removed']) %}
         {% if messages %}
             {% for message in messages %}
-                <div class="flash-message">{{ message }}</div>
+                <div class="flash-message removed">{{ message }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
     {% if cart %}
         {% for item, details in cart.items() %}
-            <p>{{ item }} {% if details.color %}({{ details.color }}){% endif %} — {{ details.quantity }} x ${{ details.price }} = ${{ details.quantity * details.price }}</p>
-            <a href="{{ url_for('remove_from_cart', item=item) }}" class="btn btn-danger">Remove</a>
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">{{ item }}</div>
+                    {% if details.color %}
+                        <div class="cart-item-color">{{ details.color }}</div>
+                    {% endif %}
+                </div>
+                <div class="cart-item-details">{{ details.quantity }} x ${{ details.price }}</div>
+                <div class="cart-item-total">${{ details.quantity * details.price }}</div>
+                <a href="{{ url_for('remove_from_cart', item=item) }}" class="btn btn-danger">Remove</a>
+            </div>
         {% endfor %}
-        <h3>Total: ${{ total }}</h3>
+        <div class="cart-total">
+            <h3>Total: ${{ total }}</h3>
+        </div>
     {% else %}
         <p class="empty-cart-message">
             Your cart is empty — browse our collection above and add something you love.
