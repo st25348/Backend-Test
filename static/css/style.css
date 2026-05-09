@@ -3,7 +3,6 @@
     --light-gray: #D1D0D0;
     --mauve: #988686;
     --dark-mauve: #5C4E4E;
-    --darkoverlay: rgba(0, 0, 0, 0.578);
     --text: #000000;
     --text-light: #5C4E4E;
     --bg: #ffffff;
@@ -40,18 +39,22 @@ a {
 
 /* ─── Navigation ─────────────────────────────────────────── */
 nav {
-    background-color: black;
+    background: rgba(0, 0, 0, 0.75);
     padding: 1.5rem 0;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;       
+    right: 0;      
+    width: 100%; 
     z-index: 100;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transition: background 0.3s ease, box-shadow 0.3s ease, border-bottom 0.3s ease;
 }
 
 .nav-container {
     margin: 0 auto;
-    padding: 0 3rem;
+    padding: 0 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -96,18 +99,9 @@ nav {
 }
 
 nav.scrolled {
-    background: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid var(--border);
-}
-
-nav.scrolled .logo,
-nav.scrolled .nav-links a {
-    color: var(--black);
-}
-
-nav.scrolled .nav-links a::after {
-    background-color: var(--black);
+    background: rgba(0, 0, 0, 0.659);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 /* ─── Back to Top Button ───────────────────────────────── */
@@ -171,40 +165,33 @@ nav.scrolled .nav-links a::after {
     height: 100%;
     object-fit: cover;
     transform: translate(-50%, -50%);
-    z-index: 1;
-    border-radius: 8px;
-}
-
-.hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: var(--darkoverlay);
     z-index: 0;
+    border-radius: 8px;
 }
 
 .hero-container {
     position: relative;
-    z-index: 2;
+    z-index: 1;
     width: 100%;
-    max-width: 1400px;
+    max-width: 1600px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 3rem;
-    gap: 3rem;
+    padding: 0 4rem;
+    gap: 4rem;
 }
 
 .hero-left,
 .hero-right {
-    flex: 1;
-    max-width: 350px;
+    flex: 1.2;
+    max-width: 450px;
     color: white;
     margin: 150px 0;
 }
 
 .hero-center {
-    width: 1000px;
-    max-width: 50%;
+    width: 600px;
+    max-width: 35%;
     height: 100%;
     flex-shrink: 0;
 }
@@ -213,7 +200,6 @@ nav.scrolled .nav-links a::after {
     font-size: 3.5rem;
     font-weight: 300;
     margin-bottom: 1rem;
-    color: white;
     letter-spacing: -2px;
     line-height: 1.1;
 }
@@ -239,7 +225,7 @@ nav.scrolled .nav-links a::after {
     align-items: center;
     gap: 0.5rem;
     padding: 1rem 2rem;
-    background: white;
+    background: var(--bg);
     color: var(--black);
     border-radius: 4px;
     font-weight: 600;
@@ -255,7 +241,6 @@ nav.scrolled .nav-links a::after {
     font-size: 2rem;
     font-weight: 300;
     margin-bottom: 1rem;
-    color: white;
     letter-spacing: -1px;
 }
 
@@ -735,9 +720,10 @@ footer {
 
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 1200px) {
-    .hero-video, .hero-center { width: 800px; max-width: 50%; }
+    .hero-video, .hero-center { width: 500px; max-width: 35%; }
     .hero h1 { font-size: 2.5rem; }
     .hero-right h2 { font-size: 1.5rem; }
+    .hero-container { padding: 0 3rem; gap: 3rem; }
 }
 
 @media (max-width: 968px) {
