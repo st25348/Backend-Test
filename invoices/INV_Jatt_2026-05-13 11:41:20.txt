@@ -1,0 +1,10 @@
+Invoice Number: INV_Jatt_2026-05-13 11:41:20
+Customer Name: Jatt
+Date: 2026-05-13 11:41:20
+
+Items:
+  - Airpods pro (Black): $249 x 3 = $747
+
+Subtotal: $747
+Discount — Promo Code (AUDIO26) (20%): -$149.4
+Total: $597.6

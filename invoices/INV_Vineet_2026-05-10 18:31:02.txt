@@ -1,0 +1,9 @@
+Invoice Number: INV_Vineet_2026-05-10 18:31:02
+Customer Name: Vineet
+Date: 2026-05-10 18:31:02
+
+Items:
+  - Usb-c adapter: $13 x 1 = $13
+
+Subtotal: $13
+Total: $13

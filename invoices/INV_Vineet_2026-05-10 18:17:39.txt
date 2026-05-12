@@ -1,0 +1,12 @@
+Invoice Number: INV_Vineet_2026-05-10 18:17:39
+Customer Name: Vineet
+Date: 2026-05-10 18:17:39
+
+Items:
+  - Beats studio pro (Deep Brown): $349 x 2 = $698
+  - Carrying case: $25 x 1 = $25
+  - Usb-c adapter: $13 x 2 = $26
+
+Subtotal: $749
+Discount — Order Over $500 (10%): -$74.9
+Total: $674.1

@@ -1,0 +1,10 @@
+Invoice Number: INV_Vineet_2026-05-11 01:06:28
+Customer Name: Vineet
+Date: 2026-05-11 01:06:28
+
+Items:
+  - Beats studio pro (Sandstone): $349 x 2 = $698
+
+Subtotal: $698
+Discount — Promo Code (AUDIO26) (20%): -$139.6
+Total: $558.4

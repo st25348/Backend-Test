@@ -134,13 +134,45 @@
                 <a href="{{ url_for('remove_from_cart', item=item) }}" class="btn btn-danger">Remove</a>
             </div>
         {% endfor %}
+
         <div class="cart-total">
             <h3>Total: ${{ total }}</h3>
         </div>
+
+        <!-- Promo form — must be OUTSIDE the checkout form -->
+        <div class="promo-section">
+            <form action="{{ url_for('apply_promo') }}" method="post">
+                <input type="text" name="promo_code" placeholder="Enter promo code" value="{{ promo_code }}">
+                <button type="submit" class="btn btn-secondary">Apply</button>
+            </form>
+
+            {% with messages = get_flashed_messages(category_filter=['promo']) %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-message success">✓ {{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% with messages = get_flashed_messages(category_filter=['promo_error']) %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-message error">✗ {{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if promo_code %}
+                <p class="discount-active"><strong>{{ promo_code }}</strong> active — {{ (promo_discount * 100) | int }}% off at checkout</p>
+            {% endif %}
+        </div>
+
+        <!-- Checkout form — separate, no nesting -->
         <form action="{{ url_for('checkout') }}" method="post">
-            <input type="text" name="customer_name_checkout" required>
+            <input type="text" name="customer_name_checkout" placeholder="Your name">
             <button type="submit" class="btn btn-primary">Checkout</button>
         </form>
+
     {% else %}
         <p class="empty-cart-message">
             Your cart is empty — browse our collection above and add something you love.
