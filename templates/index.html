@@ -109,75 +109,107 @@
 </div>
 
 <!-- Cart -->
-<div class="cart-section">
-    <h2>Your Cart</h2>
+<div class="cart-section" id="cart">
+    <div class="cart-inner">
 
-    {% with messages = get_flashed_messages(category_filter=['removed']) %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="flash-message removed">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    {% if cart %}
-        {% for item, details in cart.items() %}
-            <div class="cart-item">
-                <div class="cart-item-info">
-                    <div class="cart-item-name">{{ item }}</div>
-                    {% if details.color %}
-                        <div class="cart-item-color">{{ details.color }}</div>
-                    {% endif %}
-                </div>
-                <div class="cart-item-details">{{ details.quantity }} x ${{ details.price }}</div>
-                <div class="cart-item-total">${{ details.quantity * details.price }}</div>
-                <a href="{{ url_for('remove_from_cart', item=item) }}" class="btn btn-danger">Remove</a>
-            </div>
-        {% endfor %}
-
-        <div class="cart-total">
-            <h3>Total: ${{ total }}</h3>
-        </div>
-
-        <!-- Promo form — must be OUTSIDE the checkout form -->
-        <div class="promo-section">
-            <form action="{{ url_for('apply_promo') }}" method="post">
-                <input type="text" name="promo_code" placeholder="Enter promo code" value="{{ promo_code }}">
-                <button type="submit" class="btn btn-secondary">Apply</button>
-            </form>
-
-            {% with messages = get_flashed_messages(category_filter=['promo']) %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="flash-message success">✓ {{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            {% with messages = get_flashed_messages(category_filter=['promo_error']) %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="flash-message error">✗ {{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            {% if promo_code %}
-                <p class="discount-active"><strong>{{ promo_code }}</strong> active — {{ (promo_discount * 100) | int }}% off at checkout</p>
+        <div class="cart-header">
+            <h2>Your Cart</h2>
+            {% if cart %}
+                <span class="cart-count">{{ cart|length }} item{{ 's' if cart|length != 1 }}</span>
             {% endif %}
         </div>
 
-        <!-- Checkout form — separate, no nesting -->
-        <form action="{{ url_for('checkout') }}" method="post">
-            <input type="text" name="customer_name_checkout" placeholder="Your name">
-            <button type="submit" class="btn btn-primary">Checkout</button>
-        </form>
+        {% with messages = get_flashed_messages(category_filter=['removed']) %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message removed">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-    {% else %}
-        <p class="empty-cart-message">
-            Your cart is empty — browse our collection above and add something you love.
-        </p>
-    {% endif %}
+        {% if cart %}
+
+            <!-- Items -->
+            <div class="cart-items">
+                <div class="cart-items-head">
+                    <span>Item</span>
+                    <span>Qty × Price</span>
+                    <span>Subtotal</span>
+                    <span></span>
+                </div>
+
+                {% for item, details in cart.items() %}
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">{{ item }}</div>
+                        {% if details.color %}
+                            <div class="cart-item-color">{{ details.color }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="cart-item-details">{{ details.quantity }} × ${{ details.price }}</div>
+                    <div class="cart-item-total">${{ details.quantity * details.price }}</div>
+                    <a href="{{ url_for('remove_from_cart', item=item) }}" class="btn btn-danger">Remove</a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Promo + Total row -->
+            <div class="cart-footer">
+
+                <!-- Promo code -->
+                <div class="promo-section">
+                    <p class="promo-label">Promo Code</p>
+                    <form action="{{ url_for('apply_promo') }}" method="post" class="promo-form">
+                        <input type="text" name="promo_code" placeholder="Enter code" value="{{ promo_code }}">
+                        <button type="submit" class="btn btn-secondary">Apply</button>
+                    </form>
+
+                    {% with messages = get_flashed_messages(category_filter=['promo']) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="flash-message promo-success">✓ {{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    {% with messages = get_flashed_messages(category_filter=['promo_error']) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="flash-message promo-error">✗ {{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    {% if promo_code %}
+                        <p class="promo-active">
+                            <span class="promo-badge">{{ promo_code }}</span>
+                            {{ (promo_discount * 100) | int }}% off applied
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Total + Checkout -->
+                <div class="cart-checkout-block">
+                    <div class="cart-total-display">
+                        <span>Total</span>
+                        <span class="cart-total-amount">${{ total }}</span>
+                    </div>
+                    <form action="{{ url_for('checkout') }}" method="post" class="checkout-form">
+                        <input type="text" name="customer_name_checkout" placeholder="Your full name" required>
+                        <button type="submit" class="btn btn-primary btn-block">Checkout →</button>
+                    </form>
+                </div>
+
+            </div>
+
+        {% else %}
+            <div class="cart-empty">
+                <p>Your cart is empty</p>
+                <a href="#products" class="btn btn-primary">Browse Collection</a>
+            </div>
+        {% endif %}
+
+    </div>
 </div>
 
 {% endblock %}
