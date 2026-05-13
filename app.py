@@ -140,22 +140,23 @@ def checkout():
     order_discount = 0.10 if subtotal >= 500 else 0
 
     # Discount 3 — AirPods 3 in cart
-    headphone26_discount = 0.10 if 'AirPods 3' in headphones_cart else 0
+    airpods_discount = 0.10 if 'AirPods 3' in headphones_cart else 0
 
-    # Apply the best discount
-    discount = max(promo_discount, order_discount, headphone26_discount)
+    # Stack all applicable discounts, cap at 40%
+    discount = min(promo_discount + order_discount + airpods_discount, 0.40)
     savings  = round(subtotal * discount, 2)
     total    = round(subtotal - savings, 2)
 
-    # Discount label for invoice
-    if discount == 0:
-        discount_label = None
-    elif promo_code and promo_discount == discount:
-        discount_label = f"Promo Code ({promo_code})"
-    elif order_discount == discount:
-        discount_label = "Order Over $500"
-    else:
-        discount_label = "AirPods 3 Discount"
+    # Build label listing all active discounts
+    active_discounts = []
+    if promo_discount:
+        active_discounts.append(f"Promo ({promo_code} -{int(promo_discount*100)}%)")
+    if order_discount:
+        active_discounts.append(f"Order Over $500 -10%")
+    if airpods_discount:
+        active_discounts.append(f"AirPods 3 -10%")
+
+    discount_label = " + ".join(active_discounts) if active_discounts else None
 
     invoice_date   = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     invoice_number = f"INV_{customer_name.replace(' ', '_')}_{invoice_date}"
