@@ -12,7 +12,7 @@
     },
     "AirPods 3": {
         "price": 199,
-        "stock": 39,
+        "stock": 38,
         "description": "Active noise cancellation with spatial audio",
         "image": "https://png.pngtree.com/png-clipart/20230504/ourmid/pngtree-airpods-png-image_7081756.png",
         "colors": [
@@ -44,7 +44,7 @@
     },
     "Beats Studio Pro": {
         "price": 349,
-        "stock": 25,
+        "stock": 22,
         "description": "Premium sound with spatial audio",
         "image": "https://assets.kogan.com/files/product/2025/Beats_2025/HKI-BSTUPRONAV_1N.jpg",
         "colors": [

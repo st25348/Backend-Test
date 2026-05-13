@@ -13,10 +13,16 @@ PROMO_CODES = {
 }
 
 def load_data():
-    with open('data/headphones.json') as file:
-        headphones = json.load(file)
-    with open('data/addons.json') as file:
-        addons = json.load(file)
+    try:
+        with open('data/headphones.json') as file:
+            headphones = json.load(file)
+    except FileNotFoundError:
+        headphones = {}
+    try:
+        with open('data/addons.json') as file:
+            addons = json.load(file)
+    except FileNotFoundError:
+        addons = {}
     return headphones, addons
 
 def calculate_total(cart):
@@ -24,38 +30,40 @@ def calculate_total(cart):
     return total
 
 def initialize_data_base():
-    with sqlite3.connect('headphones.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                invoice_number TEXT NOT NULL,
-                customer_name TEXT NOT NULL,
-                items TEXT NOT NULL,
-                total REAL NOT NULL,
-                date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-    print("Database initialized.")
+    try:
+        with sqlite3.connect('headphones.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS orders (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    invoice_number TEXT NOT NULL,
+                    customer_name TEXT NOT NULL,
+                    items TEXT NOT NULL,
+                    total REAL NOT NULL,
+                    date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+    except sqlite3.Error as e:
+        print(f"Error initializing database: {e}")
 
 @app.route('/')
 @app.route('/home')
 def home():
     headphones, addons = load_data()
-    cart       = session.get('cart', {})
-    total      = calculate_total(cart)
-    promo_code = session.get('promo_code', '')
+    cart           = session.get('cart', {})
+    total          = calculate_total(cart)
+    promo_code     = session.get('promo_code', '')
     promo_discount = PROMO_CODES.get(promo_code, 0)
     return render_template('index.html', headphones=headphones, addons=addons, cart=cart, total=total, promo_code=promo_code, promo_discount=promo_discount)
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     headphones, addons = load_data()
-    cart = session.get('cart', {})
+    cart     = session.get('cart', {})
     quantity = int(request.form['quantity'])
 
     if 'headphone' in request.form:
-        item = request.form['headphone']
+        item  = request.form['headphone']
         color = request.form.get('color', 'Default')
         if item not in headphones:
             flash("Invalid headphone selected.", item)
@@ -74,9 +82,9 @@ def add_to_cart():
         cart[item]['quantity'] += quantity
     else:
         cart[item] = {
-            'price': price,
+            'price':    price,
             'quantity': quantity,
-            'color': color
+            'color':    color
         }
 
     session['cart'] = cart
@@ -124,7 +132,7 @@ def checkout():
 
     subtotal = calculate_total(cart)
 
-    # Discount 1 — promo code - from session updated on home page 
+    # Discount 1 — promo code
     promo_code     = session.get('promo_code', '')
     promo_discount = PROMO_CODES.get(promo_code, 0)
 
@@ -134,12 +142,12 @@ def checkout():
     # Discount 3 — AirPods 3 in cart
     headphone26_discount = 0.10 if 'AirPods 3' in headphones_cart else 0
 
-    # Apply the best discount 
+    # Apply the best discount
     discount = max(promo_discount, order_discount, headphone26_discount)
     savings  = round(subtotal * discount, 2)
     total    = round(subtotal - savings, 2)
 
-    # Fixed label logic for invoice
+    # Discount label for invoice
     if discount == 0:
         discount_label = None
     elif promo_code and promo_discount == discount:
@@ -153,47 +161,64 @@ def checkout():
     invoice_number = f"INV_{customer_name.replace(' ', '_')}_{invoice_date}"
 
     # Save to database
-    with sqlite3.connect('headphones.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO orders (invoice_number, customer_name, items, total)
-            VALUES (?, ?, ?, ?)
-        ''', (invoice_number, customer_name, json.dumps(cart), total))
-        conn.commit()
+    try:
+        with sqlite3.connect('headphones.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO orders (invoice_number, customer_name, items, total)
+                VALUES (?, ?, ?, ?)
+            ''', (invoice_number, customer_name, json.dumps(cart), total))
+            conn.commit()
+    except sqlite3.Error as e:
+        flash("Database error occurred.")
+        print(f"SQLite error: {e}")
+        return redirect(url_for('home'))
 
     # Write invoice file
-    os.makedirs('invoices', exist_ok=True)
-    invoice_filename = f"invoices/{invoice_number}.txt"
-    with open(invoice_filename, 'w') as file:
-        file.write(f"Invoice Number: {invoice_number}\n")
-        file.write(f"Customer Name: {customer_name}\n")
-        file.write(f"Date: {invoice_date}\n")
-        file.write("\nItems:\n")
-        for item, details in cart.items():
-            color_info = f" ({details['color']})" if details['color'] else ""
-            file.write(f"  - {item.capitalize()}{color_info}: ${details['price']} x {details['quantity']} = ${details['price'] * details['quantity']}\n")
-        file.write(f"\nSubtotal: ${subtotal}\n")
-        if discount_label:
-            file.write(f"Discount — {discount_label} ({int(discount * 100)}%): -${savings}\n")
-        file.write(f"Total: ${total}\n")
+    try:
+        os.makedirs('invoices', exist_ok=True)
+        invoice_filename = f"invoices/{invoice_number}.txt"
+        with open(invoice_filename, 'w') as file:
+            file.write(f"Invoice Number: {invoice_number}\n")
+            file.write(f"Customer Name: {customer_name}\n")
+            file.write(f"Date: {invoice_date}\n")
+            file.write("\nItems:\n")
+            for item, details in cart.items():
+                color_info = f" ({details['color']})" if details['color'] else ""
+                file.write(f"  - {item.capitalize()}{color_info}: ${details['price']} x {details['quantity']} = ${details['price'] * details['quantity']}\n")
+            file.write(f"\nSubtotal: ${subtotal}\n")
+            if discount_label:
+                file.write(f"Discount — {discount_label} ({int(discount * 100)}%): -${savings}\n")
+            file.write(f"Total: ${total}\n")
+    except OSError as e:
+        flash("Could not generate invoice file.")
+        print(f"Error writing invoice: {e}")
 
     # Update stock — headphones
-    with open('data/headphones.json', 'r') as file:
-        headphones = json.load(file)
-    for item, details in headphones_cart.items():
-        if item in headphones:
-            headphones[item]['stock'] = max(0, headphones[item]['stock'] - details['quantity'])
-    with open('data/headphones.json', 'w') as file:
-        json.dump(headphones, file, indent=4)
+    try:
+        with open('data/headphones.json', 'r') as file:
+            headphones = json.load(file)
+        for item, details in headphones_cart.items():
+            if item in headphones:
+                headphones[item]['stock'] = max(0, headphones[item]['stock'] - details['quantity'])
+        with open('data/headphones.json', 'w') as file:
+            json.dump(headphones, file, indent=4)
+    except OSError as e:
+        flash("Could not update stock file.")
+        print(f"Error updating headphones stock: {e}")
 
     # Update stock — addons
-    with open('data/addons.json', 'r') as file:
-        addons = json.load(file)
-    for item, details in addons_cart.items():
-        if item in addons:
-            addons[item]['stock'] = max(0, addons[item]['stock'] - details['quantity'])
-    with open('data/addons.json', 'w') as file:
-        json.dump(addons, file, indent=4)
+    try:
+        with open('data/addons.json', 'r') as file:
+            addons = json.load(file)
+        for item, details in addons_cart.items():
+            if item in addons:
+                addons[item]['stock'] = max(0, addons[item]['stock'] - details['quantity'])
+        with open('data/addons.json', 'w') as file:
+            json.dump(addons, file, indent=4)
+    except OSError as e:
+        flash("Could not update stock file.")
+        print(f"Error updating addons stock: {e}")
 
     # Clear cart and promo code after checkout
     session['cart'] = {}
@@ -227,22 +252,54 @@ def delete_order(invoice_number):
 def about():
     return render_template('about.html')
 
+@app.route('/invoice/<invoice_number>')
+def view_invoice(invoice_number):
+    with sqlite3.connect('headphones.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT invoice_number, customer_name, items, total, date
+            FROM orders WHERE invoice_number = ?
+        ''', (invoice_number,))
+        row = cursor.fetchone()
+
+    if not row:
+        flash("Invoice not found.")
+        return redirect(url_for('orders'))
+
+    cart            = json.loads(row[2])
+    headphones_cart = {k: v for k, v in cart.items() if v['color'] is not None}
+    addons_cart     = {k: v for k, v in cart.items() if v['color'] is None}
+
+    return render_template(
+        'invoice.html',
+        customer_name   = row[1],
+        headphones_cart = headphones_cart,
+        addons_cart     = addons_cart,
+        subtotal        = row[3],
+        savings         = 0,
+        total           = row[3],
+        discount        = 0,
+        discount_label  = None,
+        invoice_date    = row[4],
+        invoice_number  = row[0],
+    )
+
 @app.route('/orders')
 def orders():
     with sqlite3.connect('headphones.db') as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT invoice_number, customer_name, items, total, date FROM orders ORDER BY date DESC')
         rows = cursor.fetchall()
-    orders = []
-    for row in rows:    
-        orders.append({
+    orders_list = []
+    for row in rows:
+        orders_list.append({
             'invoice_number': row[0],
-            'customer_name': row[1],
-            'items': json.loads(row[2]),
-            'total': row[3],
-             'date': row[4]
+            'customer_name':  row[1],
+            'items':          json.loads(row[2]),
+            'total':          row[3],
+            'date':           row[4]
         })
-    return render_template('orders.html', orders=orders )
+    return render_template('orders.html', orders=orders_list)
 
 if __name__ == '__main__':
     initialize_data_base()

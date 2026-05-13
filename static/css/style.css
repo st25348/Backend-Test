@@ -660,6 +660,144 @@ input[type="number"] {
     text-align: center;
 }
 
+/* ─── Orders Page ────────────────────────────────────────── */
+.orders-section {
+    padding-top: 6rem;
+}
+
+.orders-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.orders-header h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+}
+
+.orders-header p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.orders-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.orders-table thead {
+    background: var(--black);
+    color: white;
+}
+
+.orders-table thead th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.orders-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s ease;
+}
+
+.orders-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.orders-table tbody tr:hover {
+    background: rgba(152, 134, 134, 0.05);
+}
+
+.orders-table td {
+    padding: 1rem 1.25rem;
+    color: var(--text);
+    vertical-align: top;
+}
+
+.order-invoice-num {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-family: monospace;
+    max-width: 160px;
+    word-break: break-all;
+}
+
+.order-date {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    white-space: nowrap;
+}
+
+.order-total {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.order-items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.order-items-list li {
+    font-size: 0.875rem;
+    color: var(--text);
+}
+
+.item-color {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.none-label {
+    color: var(--light-gray);
+    font-size: 1rem;
+}
+
+.btn-link {
+    color: var(--dark-mauve);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-link:hover {
+    color: var(--black);
+}
+
+.orders-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.orders-empty p {
+    font-size: 1rem;
+}
+
 /* ─── Footer ─────────────────────────────────────────────── */
 footer {
     background: var(--bg);

@@ -2,74 +2,95 @@
 {% block title %}AudioZone - Invoice{% endblock %}
 
 {% block content %}
-<div class="invoice-section container">
+<div class="invoice-page container">
 
-    <h1>Thank you, {{ customer_name }}!</h1>
-    <p>Your order has been received. Here is your invoice summary.</p>
+    <!-- Thank you banner -->
+    <div class="invoice-thankyou">
+        <p class="invoice-eyebrow">Order Confirmed</p>
+        <h1>Thank you, {{ customer_name }}!</h1>
+        <p>Your order has been received and is being processed.</p>
+    </div>
 
-    <p><strong>Invoice Number:</strong> {{ invoice_number }}</p>
-    <p><strong>Date:</strong> {{ invoice_date }}</p>
+    <!-- Invoice card -->
+    <div class="invoice-card">
 
-    <!-- Headphones — only shown if any were bought -->
-    {% if headphones_cart %}
-    <h2>Headphones</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Color</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
+        <!-- Card header -->
+        <div class="invoice-card-header">
+            <div class="invoice-brand">Audio<span>Zone</span></div>
+            <div class="invoice-meta">
+                <div><span>Invoice</span> {{ invoice_number }}</div>
+                <div><span>Date</span> {{ invoice_date }}</div>
+            </div>
+        </div>
+
+        <!-- Headphones -->
+        {% if headphones_cart %}
+        <div class="invoice-section-label">Headphones</div>
+        <div class="invoice-items">
+            <div class="invoice-items-head">
+                <span>Item</span>
+                <span>Color</span>
+                <span>Qty</span>
+                <span>Unit Price</span>
+                <span>Subtotal</span>
+            </div>
             {% for item, details in headphones_cart.items() %}
-            <tr>
-                <td>{{ item }}</td>
-                <td>{{ details.color }}</td>
-                <td>{{ details.quantity }}</td>
-                <td>${{ details.price }}</td>
-                <td>${{ details.quantity * details.price }}</td>
-            </tr>
+            <div class="invoice-item-row">
+                <span class="item-name">{{ item }}</span>
+                <span class="item-color-tag">{{ details.color }}</span>
+                <span>{{ details.quantity }}</span>
+                <span>${{ details.price }}</span>
+                <span class="item-subtotal">${{ details.quantity * details.price }}</span>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
+        </div>
+        {% endif %}
 
-    <!-- Add-ons — only shown if any were bought -->
-    {% if addons_cart %}
-    <h2>Add-ons</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
+        <!-- Add-ons -->
+        {% if addons_cart %}
+        <div class="invoice-section-label">Add-ons</div>
+        <div class="invoice-items">
+            <div class="invoice-items-head invoice-items-head--addon">
+                <span>Item</span>
+                <span>Qty</span>
+                <span>Unit Price</span>
+                <span>Subtotal</span>
+            </div>
             {% for item, details in addons_cart.items() %}
-            <tr>
-                <td>{{ item }}</td>
-                <td>{{ details.quantity }}</td>
-                <td>${{ details.price }}</td>
-                <td>${{ details.quantity * details.price }}</td>
-            </tr>
+            <div class="invoice-item-row invoice-item-row--addon">
+                <span class="item-name">{{ item }}</span>
+                <span>{{ details.quantity }}</span>
+                <span>${{ details.price }}</span>
+                <span class="item-subtotal">${{ details.quantity * details.price }}</span>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
+        </div>
+        {% endif %}
 
-    <p><strong>Subtotal:</strong> ${{ subtotal }}</p>
-    {% if discount_label %}
-    <p><strong>Discount — {{ discount_label }} ({{ (discount * 100) | int }}%):</strong> -${{ savings }}</p>
-    {% endif %}
-    <h3>Total: ${{ total }}</h3>
+        <!-- Totals -->
+        <div class="invoice-totals">
+            <div class="invoice-totals-row">
+                <span>Subtotal</span>
+                <span>${{ subtotal }}</span>
+            </div>
+            {% if discount_label %}
+            <div class="invoice-totals-row invoice-totals-discount">
+                <span>{{ discount_label }} ({{ (discount * 100) | int }}% off)</span>
+                <span>-${{ savings }}</span>
+            </div>
+            {% endif %}
+            <div class="invoice-totals-row invoice-totals-final">
+                <span>Total</span>
+                <span>${{ total }}</span>
+            </div>
+        </div>
 
-    <p><em>This is a temporary invoice. A full receipt will be saved to your order history shortly.</em></p>
-    <a href="{{ url_for('home') }}">← Back to Shop</a>
+        <!-- Footer note -->
+        <div class="invoice-card-footer">
+            <p>A full receipt has been saved to your order history.</p>
+            <a href="{{ url_for('home') }}" class="btn btn-primary">← Back to Shop</a>
+        </div>
 
+    </div>
 </div>
 {% endblock %}
