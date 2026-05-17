@@ -7,15 +7,21 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/normalize.css">
 </head>
-<body>
+<body data-logged-in="{{ 'true' if session.get('username') else 'false' }}"
+      data-reopen-auth="{{ reopen_auth or '' }}">
+
     <nav>
         <div class="nav-container">
             <div class="logo">🎧 AudioZone</div>
             <ul class="nav-links">
-                <li><a href="/home">Home</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/checkout">Checkout</a></li>
-                <li><a href="/orders">Orders</a></li>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('orders') }}">Orders</a></li>
+                {% if session.get('username') %}
+                    <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+                {% else %}
+                    <li><a href="#" onclick="showPanel('login'); return false;">Login</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>
@@ -23,79 +29,103 @@
     {% block content %}
     {% endblock %}
 
-        <!-- AUTH MODAL - Shows on ALL pages because it's outside the block -->
-    <div class="auth-overlay" id="authOverlay">
+    <!-- SINGLE OVERLAY — all panels hidden by default, JS shows the right one -->
+    <div class="auth-overlay" id="mainOverlay" style="display:none;">
         <div class="auth-modal">
-            
+
             <div class="auth-header">
-                <h2>AudioZone</h2>
+                <h2>🎧 AudioZone</h2>
                 <p class="auth-subtitle">Premium Audio Experience</p>
             </div>
 
-            <!-- Login Form (default) -->
-            <div class="auth-form-container active" id="loginForm">
+            <!-- PANEL: Login -->
+            <div id="panel-login" class="overlay-panel" style="display:none;">
                 <h3>Welcome Back</h3>
                 <p class="auth-description">Sign in to continue</p>
-                
-                <form action="/login" method="post">
+
+                {% with messages = get_flashed_messages(category_filter=['login_error']) %}
+                    {% if messages %}
+                        <div class="flash-message error">{{ messages[0] }}</div>
+                    {% endif %}
+                {% endwith %}
+
+                <form action="{{ url_for('login') }}" method="post">
                     <div class="auth-input-group">
                         <label for="login-email">Email</label>
                         <input type="email" id="login-email" name="email" placeholder="your@email.com" required>
                     </div>
-
                     <div class="auth-input-group">
                         <label for="login-password">Password</label>
                         <input type="password" id="login-password" name="password" placeholder="••••••••" required>
                     </div>
-
                     <div class="auth-remember">
                         <input type="checkbox" id="remember" name="remember">
                         <label for="remember">Remember me</label>
                     </div>
-
-                    <button type="submit" value="login" class="btn btn-primary btn-block auth-submit">Sign In</button>
+                    <button type="submit" class="btn btn-primary btn-block auth-submit">Sign In</button>
                 </form>
-
                 <div class="auth-footer">
-                    <p>Don't have an account? <a href="#" onclick="switchToRegister(); return false;">Register now</a></p>
+                    <p>Don't have an account? <a href="#" onclick="showPanel('register'); return false;">Register now</a></p>
                 </div>
             </div>
 
-            <!-- Register Form -->
-            <div class="auth-form-container" id="registerForm">
+            <!-- PANEL: Register -->
+            <div id="panel-register" class="overlay-panel" style="display:none;">
                 <h3>Create Account</h3>
                 <p class="auth-description">Join AudioZone today</p>
-                
-                <form action="/register" method="post">
+
+                {% with messages = get_flashed_messages(category_filter=['register_error']) %}
+                    {% if messages %}
+                        <div class="flash-message error">{{ messages[0] }}</div>
+                    {% endif %}
+                {% endwith %}
+
+                <form action="{{ url_for('register') }}" method="post">
                     <div class="auth-input-group">
                         <label for="register-name">Full Name</label>
-                        <input type="text" id="register-name" name="name" placeholder="sigma boi" required>
+                        <input type="text" id="register-name" name="name" placeholder="Your name" required>
                     </div>
-
                     <div class="auth-input-group">
                         <label for="register-email">Email</label>
                         <input type="email" id="register-email" name="email" placeholder="your@email.com" required>
                     </div>
-
                     <div class="auth-input-group">
                         <label for="register-password">Password</label>
                         <input type="password" id="register-password" name="password" placeholder="••••••••" required>
                     </div>
-
                     <div class="auth-input-group">
                         <label for="register-confirm">Confirm Password</label>
                         <input type="password" id="register-confirm" name="confirm_password" placeholder="••••••••" required>
                     </div>
-
-                    <button type="submit" value="register" class="btn btn-primary btn-block auth-submit">Create Account</button>
+                    <button type="submit" class="btn btn-primary btn-block auth-submit">Create Account</button>
                 </form>
-
                 <div class="auth-footer">
-                    <p>Already have an account? <a href="#" onclick="switchToLogin(); return false;">Sign in</a></p>
+                    <p>Already have an account? <a href="#" onclick="showPanel('login'); return false;">Sign in</a></p>
                 </div>
             </div>
+
+            <!-- PANEL: Post-login welcome -->
+            <div id="panel-loggedin" class="overlay-panel" style="display:none;">
+                <div class="welcome-body">
+                    <h3>Welcome back, {{ session.get('username', '') }}!</h3>
+                    <p>Ready to find your perfect sound?</p>
+                    <div class="welcome-icon">🎵</div>
+                    <button class="btn btn-primary" onclick="dismissOverlay()" style="margin-top:1.25rem;">
+                        Continue →
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <!-- Session flags for JS -->
+    {% with messages = get_flashed_messages(category_filter=['login_success']) %}
+        {% if messages %}<script>sessionStorage.setItem('justLoggedIn','1')</script>{% endif %}
+    {% endwith %}
+    {% with messages = get_flashed_messages(category_filter=['register_success']) %}
+        {% if messages %}<script>sessionStorage.setItem('justRegistered','1')</script>{% endif %}
+    {% endwith %}
 
     <footer>
         <div class="footer-content">
@@ -105,7 +135,6 @@
                 <a href="#" title="Facebook">👍</a>
                 <a href="#" title="YouTube">📺</a>
             </div>
-            
             <div class="footer-links">
                 <a href="/about">About Us</a>
                 <a href="#">Privacy Policy</a>
@@ -113,12 +142,12 @@
                 <a href="#">Contact</a>
                 <a href="#">FAQ</a>
             </div>
-            
             <div class="footer-bottom">
                 <p>&copy; 2024 AudioZone. Premium headphones for audiophiles. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
     <button class="back-to-top" id="back-to-top">↑</button>
     <script src="/static/javascript/script.js"></script>
 </body>
