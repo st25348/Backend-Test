@@ -1,0 +1,11 @@
+Invoice Number: INV_Vineet_2026-05-13 20:35:46
+Customer Name: Vineet
+Date: 2026-05-13 20:35:46
+
+Items:
+  - Airpods 3 (White): $199 x 4 = $796
+  - Usb-c adapter: $13 x 6 = $78
+
+Subtotal: $874
+Discount — Promo (AUDIO26 -20%) + Order Over $500 -10% + AirPods 3 -10% (40%): -$349.6
+Total: $524.4

@@ -1,0 +1,9 @@
+Invoice Number: INV_Vineet_2026-05-15 09:10:17
+Customer Name: Vineet
+Date: 2026-05-15 09:10:17
+
+Items:
+  - Airpods pro (White): $249 x 2 = $498
+
+Subtotal: $498
+Total: $498

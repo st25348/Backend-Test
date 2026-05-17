@@ -1,7 +1,7 @@
 {
     "AirPods Pro": {
         "price": 249,
-        "stock": 32,
+        "stock": 30,
         "description": "Active noise cancellation with spatial audio",
         "image": "https://png.pngtree.com/png-vector/20231104/ourmid/pngtree-apple-airpods-pro-png-image_10477533.png",
         "colors": [
@@ -12,7 +12,7 @@
     },
     "AirPods 3": {
         "price": 199,
-        "stock": 38,
+        "stock": 22,
         "description": "Active noise cancellation with spatial audio",
         "image": "https://png.pngtree.com/png-clipart/20230504/ourmid/pngtree-airpods-png-image_7081756.png",
         "colors": [
@@ -23,7 +23,7 @@
     },
     "Sony WH-1000XM5": {
         "price": 399,
-        "stock": 22,
+        "stock": 20,
         "description": "Industry-leading noise cancellation",
         "image": "https://cdn.pricespy.co.nz/product/standard/280/13508897.jpg",
         "colors": [

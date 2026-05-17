@@ -23,6 +23,80 @@
     {% block content %}
     {% endblock %}
 
+        <!-- AUTH MODAL - Shows on ALL pages because it's outside the block -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-modal">
+            
+            <div class="auth-header">
+                <h2>AudioZone</h2>
+                <p class="auth-subtitle">Premium Audio Experience</p>
+            </div>
+
+            <!-- Login Form (default) -->
+            <div class="auth-form-container active" id="loginForm">
+                <h3>Welcome Back</h3>
+                <p class="auth-description">Sign in to continue</p>
+                
+                <form action="/login" method="post">
+                    <div class="auth-input-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" name="email" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="auth-remember">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+
+                    <button type="submit" value="login" class="btn btn-primary btn-block auth-submit">Sign In</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="#" onclick="switchToRegister(); return false;">Register now</a></p>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div class="auth-form-container" id="registerForm">
+                <h3>Create Account</h3>
+                <p class="auth-description">Join AudioZone today</p>
+                
+                <form action="/register" method="post">
+                    <div class="auth-input-group">
+                        <label for="register-name">Full Name</label>
+                        <input type="text" id="register-name" name="name" placeholder="sigma boi" required>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" name="email" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" name="password" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <input type="password" id="register-confirm" name="confirm_password" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" value="register" class="btn btn-primary btn-block auth-submit">Create Account</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="#" onclick="switchToLogin(); return false;">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-content">
             <div class="footer-social">
