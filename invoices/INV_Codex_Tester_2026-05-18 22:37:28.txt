@@ -1,0 +1,11 @@
+Invoice Number: INV_Codex_Tester_2026-05-18 22:37:28
+Customer Name: Codex Tester
+Date: 2026-05-18 22:37:28
+
+Items:
+  - Airpods 3 (White): $199 x 1 = $199
+  - Carrying case: $25 x 1 = $25
+
+Subtotal: $224
+Discount — Promo (AUDIO26 -20%) + AirPods 3 -10% (30%): -$67.2
+Total: $156.8

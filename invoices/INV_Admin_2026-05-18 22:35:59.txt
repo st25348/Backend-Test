@@ -1,0 +1,10 @@
+Invoice Number: INV_Admin_2026-05-18 22:35:59
+Customer Name: Admin
+Date: 2026-05-18 22:35:59
+
+Items:
+  - Usb-c adapter: $13 x 177 = $2301
+
+Subtotal: $2301
+Discount — Order Over $500 -10% (10%): -$230.1
+Total: $2070.9
