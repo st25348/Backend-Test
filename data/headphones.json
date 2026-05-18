@@ -1,7 +1,7 @@
 {
     "AirPods Pro": {
         "price": 249,
-        "stock": 150,
+        "stock": 148,
         "description": "Active noise cancellation with spatial audio",
         "image": "https://png.pngtree.com/png-vector/20231104/ourmid/pngtree-apple-airpods-pro-png-image_10477533.png",
         "colors": [
@@ -12,7 +12,7 @@
     },
     "AirPods 3": {
         "price": 199,
-        "stock": 199,
+        "stock": 198,
         "description": "Active noise cancellation with spatial audio",
         "image": "https://png.pngtree.com/png-clipart/20230504/ourmid/pngtree-airpods-png-image_7081756.png",
         "colors": [

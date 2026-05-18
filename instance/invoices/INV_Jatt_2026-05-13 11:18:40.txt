@@ -1,0 +1,10 @@
+Invoice Number: INV_Jatt_2026-05-13 11:18:40
+Customer Name: Jatt
+Date: 2026-05-13 11:18:40
+
+Items:
+  - Sony wh-1000xm5 (Black): $399 x 3 = $1197
+
+Subtotal: $1197
+Discount — Promo Code (AUDIO26) (20%): -$239.4
+Total: $957.6

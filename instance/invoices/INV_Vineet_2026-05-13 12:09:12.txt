@@ -1,0 +1,11 @@
+Invoice Number: INV_Vineet_2026-05-13 12:09:12
+Customer Name: Vineet
+Date: 2026-05-13 12:09:12
+
+Items:
+  - Beats studio pro (Navy): $349 x 3 = $1047
+  - Premium audio cable: $30 x 5 = $150
+
+Subtotal: $1197
+Discount — Promo Code (AUDIO26) (20%): -$239.4
+Total: $957.6

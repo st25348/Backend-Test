@@ -61,9 +61,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const justLoggedIn   = sessionStorage.getItem('justLoggedIn');
     const justRegistered = sessionStorage.getItem('justRegistered');
 
-    if (justLoggedIn) {
-        // Just logged in → welcome panel, Continue button dismisses it
+    if (justLoggedIn || justRegistered) {
+        // Just logged in or registered → welcome panel, Continue button dismisses it
         sessionStorage.removeItem('justLoggedIn');
+        sessionStorage.removeItem('justRegistered');
         showPanel('loggedin');
 
     } else if (reopenAuth) {
@@ -75,9 +76,6 @@ document.addEventListener('DOMContentLoaded', function () {
         // No way to dismiss without logging in
         showPanel('login');
 
-    } else if (justRegistered) {
-        sessionStorage.removeItem('justRegistered');
-        showPanel('login');
     }
     // Logged in, no special flag → overlay stays hidden, browse freely
 });

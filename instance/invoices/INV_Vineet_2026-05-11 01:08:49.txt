@@ -1,0 +1,10 @@
+Invoice Number: INV_Vineet_2026-05-11 01:08:49
+Customer Name: Vineet
+Date: 2026-05-11 01:08:49
+
+Items:
+  - Airpods 3 (White): $199 x 1 = $199
+
+Subtotal: $199
+Discount — Promo Code (AUDIO26) (20%): -$39.8
+Total: $159.2

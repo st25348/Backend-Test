@@ -2,9 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from functools import wraps
 import os
 import sqlite3
 import json
+import shutil
 
 app = Flask(__name__)
 app.secret_key = "ilikeheadphones"
@@ -48,14 +50,112 @@ def load_data():
 def calculate_total(cart):
     return sum(item['price'] * item['quantity'] for item in cart.values())
 
+def invoice_db_path():
+    os.makedirs(app.instance_path, exist_ok=True)
+    return os.path.join(app.instance_path, 'invoices.db')
+
+def invoice_folder_path():
+    path = os.path.join(app.instance_path, 'invoices')
+    os.makedirs(path, exist_ok=True)
+    return path
+
+def migrate_invoice_storage():
+    os.makedirs(app.instance_path, exist_ok=True)
+
+    old_db_path = 'invoices.db'
+    new_db_path = invoice_db_path()
+    if os.path.exists(old_db_path) and not os.path.exists(new_db_path):
+        shutil.copy2(old_db_path, new_db_path)
+
+    old_invoice_folder = 'invoices'
+    new_invoice_folder = invoice_folder_path()
+    if os.path.isdir(old_invoice_folder):
+        for filename in os.listdir(old_invoice_folder):
+            old_file_path = os.path.join(old_invoice_folder, filename)
+            new_file_path = os.path.join(new_invoice_folder, filename)
+            if os.path.isfile(old_file_path) and not os.path.exists(new_file_path):
+                shutil.copy2(old_file_path, new_file_path)
+
+def sign_in_user(user):
+    session['user_id'] = user.id
+    session['username'] = user.name
+
+def current_user():
+    user_id = session.get('user_id')
+    if not user_id:
+        return None
+    return db.session.get(User, user_id)
+
+def login_required(view_func):
+    @wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        if not current_user():
+            session.pop('user_id', None)
+            session.pop('username', None)
+            session['reopen_auth'] = 'login'
+            flash("Please log in to continue.", 'login_error')
+            return redirect(url_for('home'))
+        return view_func(*args, **kwargs)
+    return wrapped_view
+
+def parse_quantity():
+    try:
+        quantity = int(request.form.get('quantity', ''))
+    except (TypeError, ValueError):
+        return None
+    return quantity if quantity >= 1 else None
+
+def validate_cart_stock(cart, headphones, addons):
+    checked_cart = {}
+    for item, details in cart.items():
+        try:
+            quantity = int(details.get('quantity', 0))
+        except (TypeError, ValueError):
+            return f"Please remove {item} and add it again with a valid quantity.", None
+
+        if quantity < 1:
+            return f"Please remove {item} and add it again with a valid quantity.", None
+
+        color = details.get('color')
+        if color is not None:
+            product = headphones.get(item)
+            if not product:
+                return f"{item} is no longer available.", None
+            if color not in product.get('colors', []):
+                return f"{color} is not available for {item}.", None
+            stock = product.get('stock', 0)
+            if quantity > stock:
+                return f"Only {stock} {item} available. Please update your cart.", None
+            checked_cart[item] = {
+                'price': product['price'],
+                'quantity': quantity,
+                'color': color,
+            }
+        else:
+            addon = addons.get(item)
+            if not addon:
+                return f"{item} is no longer available.", None
+            stock = addon.get('stock', 0)
+            if quantity > stock:
+                return f"Only {stock} {item} available. Please update your cart.", None
+            checked_cart[item] = {
+                'price': addon['price'],
+                'quantity': quantity,
+                'color': None,
+            }
+
+    return None, checked_cart
+
 def initialize_data_base():
     try:
-        with sqlite3.connect('invoices.db') as conn:
+        migrate_invoice_storage()
+        with sqlite3.connect(invoice_db_path()) as conn:
             cursor = conn.cursor()
             # Create table with savings + discount_label columns
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS orders (
                     id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id        INTEGER,
                     invoice_number TEXT NOT NULL,
                     customer_name  TEXT NOT NULL,
                     items          TEXT NOT NULL,
@@ -74,6 +174,10 @@ def initialize_data_base():
                 cursor.execute('ALTER TABLE orders ADD COLUMN discount_label TEXT')
             except sqlite3.OperationalError:
                 pass
+            try:
+                cursor.execute('ALTER TABLE orders ADD COLUMN user_id INTEGER')
+            except sqlite3.OperationalError:
+                pass
     except sqlite3.Error as e:
         print(f"Error initializing database: {e}")
 
@@ -85,7 +189,7 @@ def login():
     password = request.form['password']
     user     = User.query.filter_by(email=email).first()
     if user and user.check_password(password):
-        session['username'] = user.name
+        sign_in_user(user)
         flash(f"Welcome back, {user.name}!", 'login_success')
         return redirect(url_for('home'))
     else:
@@ -115,7 +219,7 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    session['username'] = new_user.name
+    sign_in_user(new_user)
     flash(f"Account created for {new_user.name}!", 'register_success')
     return redirect(url_for('home'))
 
@@ -151,22 +255,47 @@ def home():
 def add_to_cart():
     headphones, addons = load_data()
     cart     = session.get('cart', {})
-    quantity = int(request.form['quantity'])
+    quantity = parse_quantity()
+    if quantity is None:
+        flash("Please enter a valid quantity.", 'cart_error')
+        return redirect(url_for('home'))
 
     if 'headphone' in request.form:
         item  = request.form['headphone']
         color = request.form.get('color', 'Default')
         if item not in headphones:
-            flash("Invalid headphone selected.", item)
+            flash("Invalid headphone selected.", 'cart_error')
+            return redirect(url_for('home'))
+        if color not in headphones[item].get('colors', []):
+            flash("Invalid color selected.", 'cart_error')
             return redirect(url_for('home'))
         price = headphones[item]['price']
+        stock = headphones[item].get('stock', 0)
     elif 'addon' in request.form:
         item = request.form['addon']
         if item not in addons:
-            flash("Invalid addon selected.", item)
+            flash("Invalid addon selected.", 'cart_error')
             return redirect(url_for('home'))
         price = addons[item]['price']
         color = None
+        stock = addons[item].get('stock', 0)
+    else:
+        flash("Invalid item selected.", 'cart_error')
+        return redirect(url_for('home'))
+
+    try:
+        current_quantity = int(cart.get(item, {}).get('quantity', 0))
+    except (AttributeError, TypeError, ValueError):
+        current_quantity = 0
+    if current_quantity + quantity > stock:
+        stock_error_category = f"{item}_error"
+        if current_quantity:
+            flash(f"Only {stock} {item} available; you already have {current_quantity} in your cart.", stock_error_category)
+        elif stock == 0:
+            flash(f"{item} is out of stock.", stock_error_category)
+        else:
+            flash(f"Only {stock} {item} available.", stock_error_category)
+        return redirect(url_for('home'))
 
     if item in cart:
         cart[item]['quantity'] += quantity
@@ -200,16 +329,28 @@ def remove_from_cart(item):
     return redirect(url_for('home'))
 
 @app.route('/checkout', methods=['POST'])
+@login_required
 def checkout():
+    user = current_user()
     customer_name = request.form['customer_name_checkout'].strip().title()
     if not customer_name:
-        flash("Customer name is required.")
+        flash("Customer name is required.", 'cart_error')
         return redirect(url_for('home'))
 
     cart = session.get('cart', {})
     if not cart:
-        flash("Your cart is empty.")
+        flash("Your cart is empty.", 'cart_error')
         return redirect(url_for('home'))
+
+    headphones, addons = load_data()
+    stock_error, checked_cart = validate_cart_stock(cart, headphones, addons)
+    if stock_error:
+        flash(stock_error, 'cart_error')
+        return redirect(url_for('home'))
+
+    cart = checked_cart
+    session['cart'] = cart
+    session.modified = True
 
     headphones_cart = {k: v for k, v in cart.items() if v['color'] is not None}
     addons_cart     = {k: v for k, v in cart.items() if v['color'] is None}
@@ -235,12 +376,12 @@ def checkout():
 
     # Save to DB — now includes savings + discount_label
     try:
-        with sqlite3.connect('invoices.db') as conn:
+        with sqlite3.connect(invoice_db_path()) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO orders (invoice_number, customer_name, items, total, savings, discount_label)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (invoice_number, customer_name, json.dumps(cart), total, savings, discount_label))
+                INSERT INTO orders (user_id, invoice_number, customer_name, items, total, savings, discount_label)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (user.id, invoice_number, customer_name, json.dumps(cart), total, savings, discount_label))
             conn.commit()
     except sqlite3.Error as e:
         flash("Database error occurred.")
@@ -249,8 +390,8 @@ def checkout():
 
     # Write invoice file
     try:
-        os.makedirs('invoices', exist_ok=True)
-        with open(f"invoices/{invoice_number}.txt", 'w') as f:
+        invoice_file_path = os.path.join(invoice_folder_path(), f"{invoice_number}.txt")
+        with open(invoice_file_path, 'w') as f:
             f.write(f"Invoice Number: {invoice_number}\n")
             f.write(f"Customer Name: {customer_name}\n")
             f.write(f"Date: {invoice_date}\n\nItems:\n")
@@ -267,8 +408,6 @@ def checkout():
 
     # Update headphone stock
     try:
-        with open('data/headphones.json', 'r') as f:
-            headphones = json.load(f)
         for item, details in headphones_cart.items():
             if item in headphones:
                 headphones[item]['stock'] = max(0, headphones[item]['stock'] - details['quantity'])
@@ -279,8 +418,6 @@ def checkout():
 
     # Update addon stock
     try:
-        with open('data/addons.json', 'r') as f:
-            addons = json.load(f)
         for item, details in addons_cart.items():
             if item in addons:
                 addons[item]['stock'] = max(0, addons[item]['stock'] - details['quantity'])
@@ -308,12 +445,19 @@ def checkout():
     )
 
 @app.route('/delete_order/<invoice_number>', methods=['POST'])
+@login_required
 def delete_order(invoice_number):
-    with sqlite3.connect('invoices.db') as conn:
+    with sqlite3.connect(invoice_db_path()) as conn:
         cursor = conn.cursor()
-        cursor.execute('DELETE FROM orders WHERE invoice_number = ?', (invoice_number,))
+        cursor.execute(
+            'DELETE FROM orders WHERE invoice_number = ? AND user_id = ?',
+            (invoice_number, session['user_id'])
+        )
         conn.commit()
-        flash(f"Order {invoice_number} has been canceled.", 'canceled')
+        if cursor.rowcount:
+            flash(f"Order {invoice_number} has been canceled.", 'canceled')
+        else:
+            flash("Order not found.", 'canceled')
     return redirect(url_for('orders'))
 
 @app.route('/about')
@@ -321,13 +465,14 @@ def about():
     return render_template('about.html')
 
 @app.route('/invoice/<invoice_number>')
+@login_required
 def view_invoice(invoice_number):
-    with sqlite3.connect('invoices.db') as conn:
+    with sqlite3.connect(invoice_db_path()) as conn:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT invoice_number, customer_name, items, total, savings, discount_label, date
-            FROM orders WHERE invoice_number = ?
-        ''', (invoice_number,))
+            FROM orders WHERE invoice_number = ? AND user_id = ?
+        ''', (invoice_number, session['user_id']))
         row = cursor.fetchone()
 
     if not row:
@@ -356,10 +501,16 @@ def view_invoice(invoice_number):
     )
 
 @app.route('/orders')
+@login_required
 def orders():
-    with sqlite3.connect('invoices.db') as conn:
+    with sqlite3.connect(invoice_db_path()) as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT invoice_number, customer_name, items, total, date FROM orders ORDER BY date DESC')
+        cursor.execute('''
+            SELECT invoice_number, customer_name, items, total, date
+            FROM orders
+            WHERE user_id = ?
+            ORDER BY date DESC
+        ''', (session['user_id'],))
         rows = cursor.fetchall()
     orders_list = [
         {

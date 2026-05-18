@@ -419,6 +419,15 @@ input[type="number"] { text-align: center; }
     margin-bottom: 1rem;
 }
 
+.flash-message.product-error {
+    color: var(--danger);
+    background: rgba(160,64,64,0.08);
+    border-left-color: var(--danger);
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 600;
+}
+
 .flash-message.removed {
     color: var(--danger);
     background: rgba(160,64,64,0.08);

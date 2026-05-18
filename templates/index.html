@@ -67,6 +67,13 @@
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
+                    {% with messages = get_flashed_messages(category_filter=[headphone ~ '_error']) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="flash-message product-error">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
         {% endfor %}
@@ -102,6 +109,13 @@
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
+                    {% with messages = get_flashed_messages(category_filter=[details.name ~ '_error']) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="flash-message product-error">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
         {% endfor %}
@@ -118,6 +132,14 @@
                 <span class="cart-count">{{ cart|length }} item{{ 's' if cart|length != 1 }}</span>
             {% endif %}
         </div>
+
+        {% with messages = get_flashed_messages(category_filter=['cart_error']) %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message error">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         {% with messages = get_flashed_messages(category_filter=['removed']) %}
             {% if messages %}
