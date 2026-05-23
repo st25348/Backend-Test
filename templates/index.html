@@ -13,225 +13,109 @@
             <h1>AudioZone</h1>
             <p class="hero-subtitle">Premium Audio Experience</p>
             <p>Discover our curated collection of high-fidelity headphones.</p>
-            <a href="#products" class="hero-link">Explore Collection →</a>
+            <a href="{{ url_for('catalog') }}" class="hero-link">Explore Collection →</a>
         </div>
-        
-        <div class="hero-center">
-            <!-- Video plays here in center -->
-        </div>
-        
+
+        <div class="hero-center"></div>
+
         <div class="hero-right">
             <h2>Our Story</h2>
-            <p>At AudioZone, we believe that exceptional sound quality isn't just about technology—it's about passion.</p>
+            <p>At AudioZone, we believe that exceptional sound quality isn't just about technology, it's about passion.</p>
             <p>Since our founding, we've been dedicated to bringing audiophiles the finest listening experiences through carefully curated, premium headphones.</p>
             <p>Every product in our collection is chosen for its superior craftsmanship and acoustic excellence.</p>
         </div>
     </div>
 </div>
 
-<!-- Headphones -->
-<div class="products container" id="products">
-    <h2>Our Catalogue</h2>
-    <p>Handpicked premium headphones for every kind of listener.</p>
-    <div class="products-grid">
-        {% for headphone, details in headphones.items() %}
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="{{ details.image }}" alt="{{ headphone }}">
-                </div>
-                <div class="product-info">
-                    <h2>{{ headphone }}</h2>
-                    <p class="product-description">{{ details.description }}</p>
-                    <p class="product-price">${{ details.price }}</p>
-                    <p class="product-stock">In Stock: {{ details.stock }}</p>
-
-                    <!-- individual form per headphone -->
-                    <form action="{{ url_for('add_to_cart') }}" method="post">
-                        <input type="hidden" name="headphone" value="{{ headphone }}">
-                        <label for="quantity">Quantity</label>
-                        <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
-                        <label>Color</label>
-                        <select name="color">
-                            {% for color in details.colors %}
-                                <option value="{{ color }}">{{ color }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn btn-primary">Add to Cart</button>
-                    </form>
-
-                    <!-- flash message only for this headphone -->
-                    {% with messages = get_flashed_messages(category_filter=[headphone]) %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="flash-message">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    {% with messages = get_flashed_messages(category_filter=[headphone ~ '_error']) %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="flash-message product-error">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                </div>
-            </div>
-        {% endfor %}
+<section class="story-row container">
+    <div>
+        <p class="section-eyebrow">Our Story</p>
+        <h2>Sound selected with care.</h2>
+        <p>We test comfort, tuning, battery life, and build quality before anything reaches the shelf. The result is a smaller, sharper catalogue built for daily listeners, travelers, creators, and anyone who notices the details.</p>
+        <p>AudioZone keeps the experience personal: clear recommendations, reliable accessories, and order support that follows through after checkout.</p>
     </div>
-</div>
-
-<!-- Addons -->
-<div class="addons container">
-    <h2>Enhance Your Experience</h2>
-    <p>Explore our range of premium audio accessories designed to complement your headphones.</p>
-    <div class="addons-grid">
-        {% for addon, details in addons.items() %}
-            <div class="addon-card">
-                <div class="addon-info">
-                    <h2>{{ details.name }}</h2>
-                    <p class="addon-description">{{ details.description }}</p>
-                    <p class="addon-price">${{ details.price }}</p>
-                    <p class="addon-stock">In Stock: {{ details.stock }}</p>
-
-                    <!-- individual form per addon -->
-                    <form action="{{ url_for('add_to_cart') }}" method="post">
-                        <input type="hidden" name="addon" value="{{ details.name }}">
-                        <label for="quantity">Quantity</label>
-                        <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
-                        <button type="submit" class="btn btn-secondary">Add to Cart</button>
-                    </form>
-
-                    <!-- flash message only for this addon -->
-                    {% with messages = get_flashed_messages(category_filter=[details.name]) %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="flash-message">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    {% with messages = get_flashed_messages(category_filter=[details.name ~ '_error']) %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="flash-message product-error">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                </div>
-            </div>
-        {% endfor %}
+    <div class="story-image">
+        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80" alt="Premium headphones on a bright surface">
     </div>
-</div>
+</section>
 
-<!-- Cart -->
-<div class="cart-section" id="cart">
-    <div class="cart-inner">
+<section class="stats-row container" aria-label="AudioZone community statistics">
+    <div class="stat-box">
+        <div class="stat-icon">💰</div>
+        <strong>$47,320</strong>
+        <span>Total Sales</span>
+    </div>
+    <div class="stat-box">
+        <div class="stat-icon">📦</div>
+        <strong>1,284</strong>
+        <span>Orders Completed</span>
+    </div>
+    <a class="stat-box" href="{{ url_for('community') }}">
+        <div class="stat-icon">😊</div>
+        <strong>967</strong>
+        <span>5-Star Ratings</span>
+    </a>
+    <div class="stat-box">
+        <div class="stat-icon">⭐</div>
+        <strong>1,142</strong>
+        <span>Total Reviews</span>
+    </div>
+</section>
 
-        <div class="cart-header">
-            <h2>Your Cart</h2>
-            {% if cart %}
-                <span class="cart-count">{{ cart|length }} item{{ 's' if cart|length != 1 }}</span>
-            {% endif %}
+<section class="featured-products container">
+    <div class="section-header-centered">
+        <h2>Handpicked for You</h2>
+        <p>Four standouts from the full AudioZone catalogue.</p>
+    </div>
+    <div class="featured-grid">
+        {% for headphone, details in featured.items() %}
+        <div class="product-card product-card-featured">
+            <div class="product-image">
+                <img src="{{ details.image }}" alt="{{ headphone }}">
+            </div>
+            <div class="product-info">
+                <h2>{{ headphone }}</h2>
+                <p class="product-description">{{ details.description }}</p>
+                <p class="product-price">${{ details.price }}</p>
+                <form action="{{ url_for('add_to_cart') }}" method="post">
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <input type="hidden" name="headphone" value="{{ headphone }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <label>Color</label>
+                    <select name="color">
+                        {% for color in details.colors %}
+                            <option value="{{ color }}">{{ color }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                </form>
+            </div>
         </div>
-
-        {% with messages = get_flashed_messages(category_filter=['cart_error']) %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="flash-message error">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        {% with messages = get_flashed_messages(category_filter=['removed']) %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="flash-message removed">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        {% if cart %}
-
-            <!-- Items -->
-            <div class="cart-items">
-                <div class="cart-items-head">
-                    <span>Item</span>
-                    <span>Qty × Price</span>
-                    <span>Subtotal</span>
-                    <span></span>
-                </div>
-
-                {% for item, details in cart.items() %}
-                <div class="cart-item">
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">{{ item }}</div>
-                        {% if details.color %}
-                            <div class="cart-item-color">{{ details.color }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="cart-item-details">{{ details.quantity }} × ${{ details.price }}</div>
-                    <div class="cart-item-total">${{ details.quantity * details.price }}</div>
-                    <a href="{{ url_for('remove_from_cart', item=item) }}" class="btn btn-danger">Remove</a>
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Promo + Total row -->
-            <div class="cart-footer">
-
-                <!-- Promo code -->
-                <div class="promo-section">
-                    <p class="promo-label">Promo Code</p>
-                    <form action="{{ url_for('apply_promo') }}" method="post" class="promo-form">
-                        <input type="text" name="promo_code" placeholder="Enter code" value="{{ promo_code }}">
-                        <button type="submit" class="btn btn-secondary">Apply</button>
-                    </form>
-
-                    {% with messages = get_flashed_messages(category_filter=['promo']) %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="flash-message promo-success">✓ {{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-
-                    {% with messages = get_flashed_messages(category_filter=['promo_error']) %}
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="flash-message promo-error">✗ {{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-
-                    {% if promo_code %}
-                        <p class="promo-active">
-                            <span class="promo-badge">{{ promo_code }}</span>
-                            {{ (promo_discount * 100) | int }}% off applied
-                        </p>
-                    {% endif %}
-                </div>
-
-                <!-- Total + Checkout -->
-                <div class="cart-checkout-block">
-                    <div class="cart-total-display">
-                        <span>Total</span>
-                        <span class="cart-total-amount">${{ total }}</span>
-                    </div>
-                    <form action="{{ url_for('checkout') }}" method="post" class="checkout-form">
-                        <input type="text" name="customer_name_checkout" placeholder="Your full name" required>
-                        <button type="submit" class="btn btn-primary btn-block">Checkout →</button>
-                    </form>
-                </div>
-
-            </div>
-
-        {% else %}
-            <div class="cart-empty">
-                <p>Your cart is empty</p>
-                <a href="#products" class="btn btn-primary">Browse Collection</a>
-            </div>
-        {% endif %}
-
+        {% endfor %}
     </div>
-</div>
- 
+    <div class="section-action">
+        <a href="{{ url_for('catalog') }}" class="btn btn-primary">View Full Catalog →</a>
+    </div>
+</section>
+
+<section class="testimonials-section container">
+    <div class="section-header-centered">
+        <h2>What Customers Hear</h2>
+        <p>Recent 4-5 star feedback from the AudioZone community.</p>
+    </div>
+    <div class="testimonial-carousel" data-carousel>
+        <button class="carousel-arrow carousel-prev" type="button" aria-label="Previous testimonial">‹</button>
+        <div class="testimonial-track">
+            {% for testimonial in testimonials %}
+            <article class="testimonial-card">
+                <div class="testimonial-stars">{{ '★' * testimonial.rating }}{{ '☆' * (5 - testimonial.rating) }}</div>
+                <p>“{{ testimonial.quote }}”</p>
+                <strong>{{ testimonial.name }}</strong>
+                <span>{{ testimonial.product }}</span>
+            </article>
+            {% endfor %}
+        </div>
+        <button class="carousel-arrow carousel-next" type="button" aria-label="Next testimonial">›</button>
+    </div>
+</section>
 {% endblock %}

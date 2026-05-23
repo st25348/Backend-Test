@@ -1,9 +1,0 @@
-Invoice Number: INV_Mongo_2026-05-11 01:07:03
-Customer Name: Mongo
-Date: 2026-05-11 01:07:03
-
-Items:
-  - Carrying case: $25 x 2 = $50
-
-Subtotal: $50
-Total: $50

@@ -1,6 +1,6 @@
-Invoice Number: INV_Vineet_2026-05-18 00:23:15
-Customer Name: Vineet
-Date: 2026-05-18 00:23:15
+Invoice Number: INV_Admin_Nepali_2026-05-23 20:15:40
+Customer Name: Admin Nepali
+Date: 2026-05-23 20:15:40
 
 Items:
   - Airpods 3 (White): $199 x 1 = $199

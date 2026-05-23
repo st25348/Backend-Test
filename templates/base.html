@@ -15,8 +15,17 @@
             <div class="logo">🎧 AudioZone</div>
             <ul class="nav-links">
                 <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('catalog') }}">Catalog</a></li>
+                <li><a href="{{ url_for('community') }}">Community</a></li>
                 <li><a href="{{ url_for('orders') }}">Orders</a></li>
+                <li>
+                    <button class="cart-nav-button" type="button" aria-label="Open cart" aria-controls="cartDrawer">
+                        <span>🛒</span>
+                        {% if cart_item_count %}
+                            <span class="cart-nav-count">{{ cart_item_count }}</span>
+                        {% endif %}
+                    </button>
+                </li>
                 {% if session.get('username') %}
                     <li class="profile-nav">
                         <details class="profile-menu">
@@ -70,6 +79,105 @@
 
     {% block content %}
     {% endblock %}
+
+    <div class="cart-drawer-overlay" id="cartDrawerOverlay" hidden></div>
+    <aside class="cart-drawer" id="cartDrawer" aria-hidden="true" aria-labelledby="cartDrawerTitle">
+        <div class="cart-drawer-panel">
+            <div class="cart-header">
+                <h2 id="cartDrawerTitle">Your Cart</h2>
+                <div class="cart-drawer-actions">
+                    {% if cart %}
+                        <span class="cart-count">{{ cart|length }} item{{ 's' if cart|length != 1 }}</span>
+                    {% endif %}
+                    <button class="cart-drawer-close" type="button" aria-label="Close cart">×</button>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(category_filter=['cart_error']) %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-message error">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% with messages = get_flashed_messages(category_filter=['removed']) %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-message removed">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if cart %}
+                <div class="cart-items cart-items-drawer">
+                    {% for item, details in cart.items() %}
+                    <div class="cart-item cart-item-drawer">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">{{ item }}</div>
+                            {% if details.color %}
+                                <div class="cart-item-color">{{ details.color }}</div>
+                            {% endif %}
+                            <div class="cart-item-details">{{ details.quantity }} × ${{ details.price }}</div>
+                        </div>
+                        <div class="cart-item-total">${{ details.quantity * details.price }}</div>
+                        <a href="{{ url_for('remove_from_cart', item=item) }}" class="btn btn-danger">Remove</a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="cart-footer cart-footer-drawer">
+                    <div class="promo-section">
+                        <p class="promo-label">Promo Code</p>
+                        <form action="{{ url_for('apply_promo') }}" method="post" class="promo-form">
+                            <input type="hidden" name="next" value="{{ request.full_path }}">
+                            <input type="text" name="promo_code" placeholder="Enter code" value="{{ promo_code }}">
+                            <button type="submit" class="btn btn-secondary">Apply</button>
+                        </form>
+
+                        {% with messages = get_flashed_messages(category_filter=['promo']) %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="flash-message promo-success">✓ {{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        {% with messages = get_flashed_messages(category_filter=['promo_error']) %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="flash-message promo-error">✗ {{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        {% if promo_code %}
+                            <p class="promo-active">
+                                <span class="promo-badge">{{ promo_code }}</span>
+                                {{ (promo_discount * 100) | int }}% off applied
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="cart-checkout-block">
+                        <div class="cart-total-display">
+                            <span>Total</span>
+                            <span class="cart-total-amount">${{ total }}</span>
+                        </div>
+                        <form action="{{ url_for('checkout') }}" method="post" class="checkout-form">
+                            <input type="text" name="customer_name_checkout" placeholder="Your full name" value="{{ session.get('username', '') }}" required>
+                            <button type="submit" class="btn btn-primary btn-block">Checkout →</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="cart-empty">
+                    <p>Your cart is empty</p>
+                    <a href="{{ url_for('catalog') }}" class="btn btn-primary">Browse Collection</a>
+                </div>
+            {% endif %}
+        </div>
+    </aside>
 
     <!-- SINGLE OVERLAY — all panels hidden by default, JS shows the right one -->
     <div class="auth-overlay" id="mainOverlay" style="display:none;">

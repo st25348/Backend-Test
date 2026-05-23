@@ -23,55 +23,49 @@
             <table class="orders-table">
                 <thead>
                     <tr>
+                        <th>Date</th>
                         <th>Invoice</th>
                         <th>Customer</th>
-                        <th>Headphones</th>
-                        <th>Add-ons</th>
-                        <th>Date</th>
+                        <th>Items</th>
                         <th>Total</th>
-                        <th>Invoice</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for order in orders %}
                     <tr>
-                        <td class="order-invoice-num">{{ order.invoice_number }}</td>
-                        <td>{{ order.customer_name }}</td>
-                        <td>
-                            {% set has_headphones = order['items'].values() | selectattr('color') | list %}
-                            {% if has_headphones %}
-                                <ul class="order-items-list">
-                                    {% for name, details in order['items'].items() if details.color %}
-                                        <li>{{ details.quantity }}× {{ name }} <span class="item-color">({{ details.color }})</span></li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <span class="none-label">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% set has_addons = order['items'].values() | rejectattr('color') | list %}
-                            {% if has_addons %}
-                                <ul class="order-items-list">
-                                    {% for name, details in order['items'].items() if not details.color %}
-                                        <li>{{ details.quantity }}× {{ name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <span class="none-label">—</span>
-                            {% endif %}
-                        </td>
                         <td class="order-date">{{ order.date }}</td>
-                        <td class="order-total">${{ '%.2f' | format(order.total) }}</td>
-                        <td>
-                            <a href="{{ url_for('view_invoice', invoice_number=order.invoice_number) }}" class="btn-link">View →</a>
+                        <td class="order-invoice-num">{{ order.invoice_number }}</td>
+                        <td class="order-customer">{{ order.customer_name }}</td>
+                        <td class="order-items-cell">
+                            <ul class="order-items-list">
+                                {% for name, details in order['items'].items() %}
+                                <li>
+                                    <span class="order-item-qty">{{ details.quantity }}×</span>
+                                    {{ name }}
+                                    {% if details.color %}
+                                    <span class="item-color">{{ details.color }}</span>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
                         </td>
-                        <td>
-                            <form action="{{ url_for('delete_order', invoice_number=order.invoice_number) }}" method="post"
-                                onsubmit="return confirm('Delete this order?');">
-                                <button type="submit" class="btn btn-danger">Cancel</button>
-                            </form>
+                        <td class="order-total">${{ '%.2f' | format(order.total) }}</td>
+                        <td class="order-actions-cell">
+                            <div class="order-actions">
+                                <a href="{{ url_for('view_invoice', invoice_number=order.invoice_number) }}" class="btn-link">View →</a>
+                                <details class="download-menu">
+                                    <summary class="btn btn-secondary btn-small">Download</summary>
+                                    <div>
+                                        <a href="{{ url_for('download_invoice', invoice_number=order.invoice_number, file_type='pdf') }}">PDF</a>
+                                        <a href="{{ url_for('download_invoice', invoice_number=order.invoice_number, file_type='txt') }}">TXT</a>
+                                    </div>
+                                </details>
+                                <form action="{{ url_for('delete_order', invoice_number=order.invoice_number) }}" method="post"
+                                    onsubmit="return confirm('Cancel this order?');">
+                                    <button type="submit" class="btn btn-danger">Cancel</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}

@@ -1,0 +1,10 @@
+Invoice Number: INV_Admin_Nepali_2026-05-23 20:38:23
+Customer Name: Admin Nepali
+Date: 2026-05-23 20:38:23
+
+Items:
+  - Premium audio cable: $30 x 1 = $30
+  - Sony wh-1000xm5 (Black): $399 x 1 = $399
+
+Subtotal: $429
+Total: $429

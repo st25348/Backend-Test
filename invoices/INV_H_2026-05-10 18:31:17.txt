@@ -1,9 +1,0 @@
-Invoice Number: INV_H_2026-05-10 18:31:17
-Customer Name: H
-Date: 2026-05-10 18:31:17
-
-Items:
-  - Bose quietcomfort 45 (Black): $329 x 1 = $329
-
-Subtotal: $329
-Total: $329

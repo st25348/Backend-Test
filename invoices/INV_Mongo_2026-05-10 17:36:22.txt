@@ -1,9 +1,0 @@
-Invoice Number: INV_Mongo_2026-05-10 17:36:22
-Customer Name: Mongo
-Date: 2026-05-10 17:36:22
-
-Items:
-- Beats studio pro (Deep Brown): $349 x 2 = $698
-- Usb-c adapter: $13 x 2 = $26
-
-Total: $724
