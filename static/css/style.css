@@ -59,9 +59,11 @@ nav {
     display: flex;
     gap: 3rem;
     list-style: none;
+    align-items: center;
 }
 
-.nav-links a {
+.nav-links a,
+.profile-trigger {
     color: white;
     font-weight: 500;
     font-size: 0.95rem;
@@ -70,7 +72,8 @@ nav {
     transition: color 0.3s ease;
 }
 
-.nav-links a::after {
+.nav-links a::after,
+.profile-trigger::after {
     content: '';
     position: absolute;
     bottom: 0; left: 0;
@@ -79,7 +82,215 @@ nav {
     transition: width 0.3s ease;
 }
 
-.nav-links a:hover::after { width: 100%; }
+.nav-links a:hover::after,
+.profile-trigger:hover::after,
+.profile-menu[open] .profile-trigger::after { width: 100%; }
+
+.profile-nav {
+    position: relative;
+    padding-left: 1.75rem;
+}
+
+.profile-nav::before {
+    content: '';
+    position: absolute;
+    left: -0.65rem;
+    top: 50%;
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.35);
+    transform: translateY(-50%);
+}
+
+.profile-menu {
+    position: relative;
+}
+
+.profile-trigger {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+    border: none;
+}
+
+.profile-trigger::-webkit-details-marker { display: none; }
+
+.profile-avatar {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255,255,255,0.55);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.14);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.profile-popover {
+    position: absolute;
+    top: calc(100% + 1.1rem);
+    right: 0;
+    width: min(320px, calc(100vw - 2rem));
+    padding: 1rem;
+    background: rgba(255,255,255,0.97);
+    border: 1px solid rgba(92,78,78,0.16);
+    border-radius: 8px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+    color: var(--text);
+}
+
+.profile-popover::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 1.25rem;
+    width: 14px;
+    height: 14px;
+    background: rgba(255,255,255,0.97);
+    border-left: 1px solid rgba(92,78,78,0.16);
+    border-top: 1px solid rgba(92,78,78,0.16);
+    transform: rotate(45deg);
+}
+
+.profile-popover-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.profile-avatar-large {
+    width: 44px;
+    height: 44px;
+    background: var(--dark-mauve);
+    border-color: var(--dark-mauve);
+}
+
+.profile-label {
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1.2;
+}
+
+.profile-popover h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.profile-details {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem 0;
+}
+
+.profile-details div {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.profile-details span {
+    color: var(--text-light);
+    font-size: 0.78rem;
+}
+
+.profile-details strong {
+    font-size: 0.92rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.profile-admin {
+    padding: 0 0 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.profile-admin p {
+    color: var(--text-light);
+    font-size: 0.78rem;
+    margin: 0.85rem 0 0.5rem;
+}
+
+.profile-admin form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+}
+
+.profile-admin input {
+    width: 100%;
+    min-width: 0;
+    padding: 0.65rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.82rem;
+}
+
+.profile-admin input:focus {
+    outline: none;
+    border-color: var(--mauve);
+}
+
+.profile-admin button,
+.profile-admin-link {
+    border: none;
+    border-radius: 4px;
+    background: var(--dark-mauve);
+    color: white;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.65rem 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.profile-admin button:hover,
+.profile-admin-link:hover {
+    background: var(--black);
+    transform: translateY(-2px);
+}
+
+.profile-admin-link {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.85rem;
+}
+
+.profile-admin-link::after { display: none; }
+
+.profile-admin-message {
+    margin-top: 0.85rem;
+    color: var(--dark-mauve);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.profile-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    background: var(--black);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.profile-logout:hover {
+    background: var(--dark-mauve);
+    transform: translateY(-2px);
+}
+
+.profile-logout:active { transform: translateY(0); }
+
+.profile-logout::after { display: none; }
 
 nav.scrolled {
     background: rgba(0,0,0,0.85);
@@ -721,6 +932,130 @@ input[type="number"] { text-align: center; }
     gap: 1.5rem;
 }
 
+/* ─── Admin Page ──────────────────────────────────────────── */
+.admin-page {
+    padding-top: 8rem;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--mauve);
+    margin-bottom: 0.5rem;
+}
+
+.admin-header h1 {
+    font-size: 2.25rem;
+    font-weight: 300;
+    letter-spacing: -1px;
+}
+
+.admin-section {
+    margin-bottom: 2.5rem;
+}
+
+.admin-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.admin-products {
+    display: grid;
+    gap: 1rem;
+}
+
+.admin-form {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    background: white;
+}
+
+.admin-form-new {
+    background: rgba(152,134,134,0.05);
+}
+
+.admin-product-top {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.admin-product-top img {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem;
+    background: white;
+}
+
+.admin-product-top h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.admin-product-top p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-form label {
+    display: grid;
+    gap: 0.4rem;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.admin-form input,
+.admin-form textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0;
+    resize: vertical;
+}
+
+.admin-form input:focus,
+.admin-form textarea:focus {
+    outline: none;
+    border-color: var(--mauve);
+}
+
+.admin-field-wide {
+    grid-column: 1 / -1;
+}
+
 /* ─── Invoice Page ────────────────────────────────────────── */
 .invoice-page { padding-top: 6rem; max-width: 800px; }
 
@@ -1074,13 +1409,17 @@ footer {
     .hero-video, .hero-center { height: 300px; }
     .hero-container { padding: 2rem 1.5rem; }
     .products-grid, .addons-grid { grid-template-columns: 1fr; }
-    .nav-links { gap: 1.5rem; }
+    .nav-links { gap: 1.25rem; }
+    .profile-nav { padding-left: 1.1rem; }
+    .profile-nav::before { left: -0.35rem; }
     .container { padding: 2rem 1.5rem; }
     .addons { padding: 0 1.5rem; }
     .auth-modal { padding: 2rem 1.5rem; }
     .auth-header h2 { font-size: 1.75rem; }
     .overlay-panel h3 { font-size: 1.25rem; }
     .cart-footer { grid-template-columns: 1fr; }
+    .admin-header { align-items: flex-start; flex-direction: column; }
+    .admin-form-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
@@ -1089,7 +1428,11 @@ footer {
     .hero h1 { font-size: 1.75rem; }
     .hero-right h2 { font-size: 1.25rem; }
     .hero-video, .hero-center { height: 250px; }
-    .nav-links { gap: 1rem; font-size: 0.875rem; }
+    .nav-links { gap: 0.8rem; font-size: 0.875rem; }
+    .profile-nav { padding-left: 0.8rem; }
+    .profile-popover { right: -0.25rem; }
+    .profile-admin form { grid-template-columns: 1fr; }
+    .admin-product-top { grid-template-columns: 1fr; }
     .footer-links { flex-direction: column; gap: 1rem; }
     .cart-items-head,
     .cart-item { grid-template-columns: 2fr 1fr 1fr; }

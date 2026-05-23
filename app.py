@@ -10,6 +10,7 @@ import shutil
 
 app = Flask(__name__)
 app.secret_key = "ilikeheadphones"
+ADMIN_SECRET_KEY = os.environ.get('ADMIN_SECRET_KEY', 'headphonesforlife')
 
 # Configure SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -22,6 +23,7 @@ class User(db.Model):
     name          = db.Column(db.String(150), nullable=False)
     email         = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    is_admin      = db.Column(db.Boolean, nullable=False, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -46,6 +48,51 @@ def load_data():
     except FileNotFoundError:
         addons = {}
     return headphones, addons
+
+def save_headphones(headphones):
+    with open('data/headphones.json', 'w') as f:
+        json.dump(headphones, f, indent=4)
+
+def parse_product_form():
+    name = request.form.get('name', '').strip()
+    description = request.form.get('description', '').strip()
+    image = request.form.get('image', '').strip()
+    colors = [
+        color.strip()
+        for color in request.form.get('colors', '').split(',')
+        if color.strip()
+    ]
+
+    try:
+        price = float(request.form.get('price', ''))
+        stock = int(request.form.get('stock', ''))
+    except (TypeError, ValueError):
+        return None, "Price and stock must be valid numbers."
+
+    if not name:
+        return None, "Product name is required."
+    if price < 0 or stock < 0:
+        return None, "Price and stock cannot be negative."
+    if not description:
+        return None, "Description is required."
+    if not image:
+        return None, "Image URL is required."
+    if not colors:
+        return None, "Add at least one color."
+
+    if price.is_integer():
+        price = int(price)
+
+    return {
+        'name': name,
+        'details': {
+            'price': price,
+            'stock': stock,
+            'description': description,
+            'image': image,
+            'colors': colors,
+        }
+    }, None
 
 def calculate_total(cart):
     return sum(item['price'] * item['quantity'] for item in cart.values())
@@ -79,6 +126,8 @@ def migrate_invoice_storage():
 def sign_in_user(user):
     session['user_id'] = user.id
     session['username'] = user.name
+    session['user_email'] = user.email
+    session['is_admin'] = bool(user.is_admin)
 
 def current_user():
     user_id = session.get('user_id')
@@ -86,14 +135,36 @@ def current_user():
         return None
     return db.session.get(User, user_id)
 
+@app.before_request
+def sync_session_user_details():
+    if session.get('user_id') and (not session.get('user_email') or 'is_admin' not in session):
+        user = current_user()
+        if user:
+            session['username'] = user.name
+            session['user_email'] = user.email
+            session['is_admin'] = bool(user.is_admin)
+
 def login_required(view_func):
     @wraps(view_func)
     def wrapped_view(*args, **kwargs):
         if not current_user():
             session.pop('user_id', None)
             session.pop('username', None)
+            session.pop('user_email', None)
+            session.pop('is_admin', None)
             session['reopen_auth'] = 'login'
             flash("Please log in to continue.", 'login_error')
+            return redirect(url_for('home'))
+        return view_func(*args, **kwargs)
+    return wrapped_view
+
+def admin_required(view_func):
+    @wraps(view_func)
+    @login_required
+    def wrapped_view(*args, **kwargs):
+        user = current_user()
+        if not user or not user.is_admin:
+            flash("Admin access is required.", 'profile_admin_error')
             return redirect(url_for('home'))
         return view_func(*args, **kwargs)
     return wrapped_view
@@ -181,6 +252,19 @@ def initialize_data_base():
     except sqlite3.Error as e:
         print(f"Error initializing database: {e}")
 
+def migrate_user_database():
+    db.create_all()
+    try:
+        with sqlite3.connect(os.path.join(app.instance_path, 'users.db')) as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute('ALTER TABLE user ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT 0')
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass
+    except sqlite3.Error as e:
+        print(f"Error updating users database: {e}")
+
 # ── Routes ──────────────────────────────────────────────────────────
 
 @app.route('/login', methods=['POST'])
@@ -228,6 +312,75 @@ def logout():
     session.clear()
     flash("You've been logged out.", 'logout')
     return redirect(url_for('home'))
+
+@app.route('/become_admin', methods=['POST'])
+@login_required
+def become_admin():
+    secret_key = request.form.get('admin_secret', '').strip()
+    if secret_key != ADMIN_SECRET_KEY:
+        flash("That admin key is not correct.", 'profile_admin_error')
+        return redirect(url_for('home'))
+
+    user = current_user()
+    user.is_admin = True
+    db.session.commit()
+    session['is_admin'] = True
+    flash("Admin access unlocked.", 'admin_access')
+    return redirect(url_for('admin'))
+
+@app.route('/admin')
+@admin_required
+def admin():
+    headphones, _ = load_data()
+    return render_template('admin.html', headphones=headphones)
+
+@app.route('/admin/products/add', methods=['POST'])
+@admin_required
+def add_product():
+    product, error = parse_product_form()
+    if error:
+        flash(error, 'admin_error')
+        return redirect(url_for('admin'))
+
+    headphones, _ = load_data()
+    if product['name'] in headphones:
+        flash("A product with that name already exists.", 'admin_error')
+        return redirect(url_for('admin'))
+
+    headphones[product['name']] = product['details']
+    try:
+        save_headphones(headphones)
+        flash(f"{product['name']} was added.", 'admin_success')
+    except OSError:
+        flash("Could not save the new product.", 'admin_error')
+    return redirect(url_for('admin'))
+
+@app.route('/admin/products/<path:product_name>/update', methods=['POST'])
+@admin_required
+def update_product(product_name):
+    product, error = parse_product_form()
+    if error:
+        flash(error, 'admin_error')
+        return redirect(url_for('admin'))
+
+    headphones, _ = load_data()
+    if product_name not in headphones:
+        flash("Product not found.", 'admin_error')
+        return redirect(url_for('admin'))
+    if product['name'] != product_name and product['name'] in headphones:
+        flash("Another product already uses that name.", 'admin_error')
+        return redirect(url_for('admin'))
+
+    if product['name'] != product_name:
+        headphones.pop(product_name)
+    headphones[product['name']] = product['details']
+
+    try:
+        save_headphones(headphones)
+        flash(f"{product['name']} was updated.", 'admin_success')
+    except OSError:
+        flash("Could not save product changes.", 'admin_error')
+    return redirect(url_for('admin'))
 
 @app.route('/')
 @app.route('/home')
@@ -524,8 +677,9 @@ def orders():
     ]
     return render_template('orders.html', orders=orders_list)
 
+with app.app_context():
+    migrate_user_database()
+initialize_data_base()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    initialize_data_base()
     app.run(debug=True)

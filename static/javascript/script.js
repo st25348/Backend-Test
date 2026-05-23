@@ -4,6 +4,22 @@ window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 50);
 });
 
+// ── Profile popover ───────────────────────────────────────────────
+const profileMenu = document.querySelector('.profile-menu');
+if (profileMenu) {
+    document.addEventListener('click', event => {
+        if (!profileMenu.contains(event.target)) {
+            profileMenu.removeAttribute('open');
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            profileMenu.removeAttribute('open');
+        }
+    });
+}
+
 // ── Back to top ────────────────────────────────────────────────────
 const backToTop = document.getElementById('back-to-top');
 window.addEventListener('scroll', () => {

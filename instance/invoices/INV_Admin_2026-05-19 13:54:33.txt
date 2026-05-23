@@ -1,0 +1,9 @@
+Invoice Number: INV_Admin_2026-05-19 13:54:33
+Customer Name: Admin
+Date: 2026-05-19 13:54:33
+
+Items:
+  - Airpods pro (White): $249 x 1 = $249
+
+Subtotal: $249
+Total: $249

@@ -18,7 +18,49 @@
                 <li><a href="{{ url_for('about') }}">About</a></li>
                 <li><a href="{{ url_for('orders') }}">Orders</a></li>
                 {% if session.get('username') %}
-                    <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+                    <li class="profile-nav">
+                        <details class="profile-menu">
+                            <summary class="profile-trigger" aria-label="Open profile menu">
+                                <span class="profile-avatar">{{ session.get('username', 'U')[:1].upper() }}</span>
+                            </summary>
+                            <div class="profile-popover">
+                                <div class="profile-popover-header">
+                                    <span class="profile-avatar profile-avatar-large">{{ session.get('username', 'U')[:1].upper() }}</span>
+                                    <div>
+                                        <p class="profile-label">Signed in as</p>
+                                        <h3>{{ session.get('username') }}</h3>
+                                    </div>
+                                </div>
+                                <div class="profile-details">
+                                    <div>
+                                        <span>Name</span>
+                                        <strong>{{ session.get('username') }}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Email</span>
+                                        <strong>{{ session.get('user_email', 'Email unavailable') }}</strong>
+                                    </div>
+                                </div>
+                                <div class="profile-admin">
+                                    {% with messages = get_flashed_messages(category_filter=['profile_admin_error', 'admin_access']) %}
+                                        {% if messages %}
+                                            <div class="profile-admin-message">{{ messages[0] }}</div>
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% if session.get('is_admin') %}
+                                        <a class="profile-admin-link" href="{{ url_for('admin') }}">Open Admin Panel</a>
+                                    {% else %}
+                                        <p>Are you an admin?</p>
+                                        <form action="{{ url_for('become_admin') }}" method="post">
+                                            <input type="password" name="admin_secret" placeholder="Secret key" required>
+                                            <button type="submit">Login as Admin</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                                <a class="profile-logout" href="{{ url_for('logout') }}">Log Out</a>
+                            </div>
+                        </details>
+                    </li>
                 {% else %}
                     <li><a href="#" onclick="showPanel('login'); return false;">Login</a></li>
                 {% endif %}

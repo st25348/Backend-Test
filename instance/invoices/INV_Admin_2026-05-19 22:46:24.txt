@@ -1,0 +1,10 @@
+Invoice Number: INV_Admin_2026-05-19 22:46:24
+Customer Name: Admin
+Date: 2026-05-19 22:46:24
+
+Items:
+  - Champu (super black): $1.04 x 1 = $1.04
+
+Subtotal: $1.04
+Discount — Promo (AUDIO26 -20%) (20%): -$0.21
+Total: $0.83

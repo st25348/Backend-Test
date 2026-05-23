@@ -1,0 +1,12 @@
+Invoice Number: INV_Vineet_2026-05-19 13:53:50
+Customer Name: Vineet
+Date: 2026-05-19 13:53:50
+
+Items:
+  - Airpods 3 (White): $199 x 1 = $199
+  - Airpods pro (White): $249 x 1 = $249
+  - Bose quietcomfort 45 (Black): $329 x 100 = $32900
+
+Subtotal: $33348
+Discount — Order Over $500 -10% + AirPods 3 -10% (20%): -$6669.6
+Total: $26678.4
