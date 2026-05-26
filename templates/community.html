@@ -1,13 +1,12 @@
 {% extends "base.html" %}
-
 {% block title %}AudioZone - Community{% endblock %}
-
 {% block content %}
 <main class="community-page container">
+
     <header class="community-header">
         <p class="section-eyebrow">Community</p>
         <h1>Community Feedback</h1>
-        <p>Vote on your favorite headphones and share your experience.</p>
+        <p>Share your experience with AudioZone.</p>
     </header>
 
     {% with messages = get_flashed_messages(category_filter=['community_success', 'community_error']) %}
@@ -18,57 +17,82 @@
         {% endif %}
     {% endwith %}
 
-    <section class="community-voting">
-        <div class="products-grid">
-            {% for headphone, details in headphones.items() %}
-            <article class="product-card">
-                <div class="product-image">
-                    <img src="{{ details.image }}" alt="{{ headphone }}">
+    <section class="review-submit-section">
+        <h2>Leave a Review</h2>
+        <p>Reviews are collected here and featured on the home page.</p>
+        <form action="{{ url_for('community_review') }}" method="post" class="review-form">
+
+            <label>
+                Your Name
+                <input type="text" name="customer_name"
+                       value="{{ session.get('username', '') }}"
+                       placeholder="e.g. Maya Chen" required>
+            </label>
+
+            <label>
+                Product
+                <select name="product_name" required>
+                    <option value="" disabled selected>Choose a product…</option>
+                    {% for headphone in headphones %}
+                        <option value="{{ headphone }}">{{ headphone }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="review-form-full">
+                Star Rating
+                <div style="display:flex; gap:1.5rem; margin-top:0.25rem; flex-wrap:wrap;">
+                    {% for star in [5,4,3,2,1] %}
+                    <label style="display:flex; align-items:center; gap:0.35rem; text-transform:none; letter-spacing:0; font-size:0.92rem; font-weight:400; color:var(--text-light);">
+                        <input type="radio" name="rating" value="{{ star }}"
+                               {% if star == 5 %}checked{% endif %}
+                               style="accent-color:var(--dark-mauve); width:auto;">
+                        {{ '★' * star }}{{ '☆' * (5 - star) }}
+                    </label>
+                    {% endfor %}
                 </div>
-                <div class="product-info">
-                    <h2>{{ headphone }}</h2>
-                    <p class="vote-count">👍 {{ feedback[headphone].votes }}</p>
-                    <form action="{{ url_for('community_vote') }}" method="post">
-                        <input type="hidden" name="product_name" value="{{ headphone }}">
-                        <button type="submit" class="btn btn-primary">Vote</button>
-                    </form>
-                    <form action="{{ url_for('community_review') }}" method="post" class="rating-form">
-                        <input type="hidden" name="product_name" value="{{ headphone }}">
-                        <input type="text" name="customer_name" placeholder="Your name" value="{{ session.get('username', '') }}" required>
-                        <div class="star-options" aria-label="Rating">
-                            {% for rating in range(5, 0, -1) %}
-                            <label>
-                                <input type="radio" name="rating" value="{{ rating }}" {% if rating == 5 %}checked{% endif %}>
-                                <span>{{ '★' * rating }}</span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                        <textarea name="review_text" placeholder="Share a short review"></textarea>
-                        <button type="submit" class="btn btn-secondary">Submit Rating</button>
-                    </form>
-                    <p class="average-rating">
-                        Average {{ feedback[headphone].average_rating or 'New' }}
-                        {% if feedback[headphone].rating_count %}from {{ feedback[headphone].rating_count }} review{{ 's' if feedback[headphone].rating_count != 1 }}{% endif %}
-                    </p>
-                </div>
-            </article>
-            {% endfor %}
-        </div>
+            </label>
+
+            <label class="review-form-full">
+                Your Review <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span>
+                <textarea name="review_text" rows="4"
+                          placeholder="What did you love about it?"></textarea>
+            </label>
+
+            <div class="review-form-full">
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </div>
+        </form>
     </section>
 
-    <section class="community-testimonials">
-        <div class="section-header-centered">
-            <h2>What Our Customers Say</h2>
+    <section class="stats-row" aria-label="AudioZone community statistics">
+        <div class="stat-box">
+            <div class="stat-icon">
+                <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bx-dollar-circle.svg') }}" alt="">
+            </div>
+            <strong>${{ '%.2f' | format(stats.total_sales) }}</strong>
+            <span>Total Sales</span>
         </div>
-        <div class="testimonial-grid">
-            {% for testimonial in testimonials %}
-            <article class="testimonial-card">
-                <div class="testimonial-stars">{{ '★' * testimonial.rating }}{{ '☆' * (5 - testimonial.rating) }}</div>
-                <p>“{{ testimonial.quote }}”</p>
-                <strong>{{ testimonial.name }} <span class="verified-badge">Verified</span></strong>
-                <span>{{ testimonial.product }}</span>
-            </article>
-            {% endfor %}
+        <div class="stat-box">
+            <div class="stat-icon">
+                <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bxs-package.svg') }}" alt="">
+            </div>
+            <strong>{{ stats.orders_completed }}</strong>
+            <span>Orders Completed</span>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bx-star-circle.svg') }}" alt="">
+            </div>
+            <strong>{{ stats.five_star_reviews }}</strong>
+            <span>5-Star Ratings</span>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon">
+                <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bx-message-dots-2.svg') }}" alt="">
+            </div>
+            <strong>{{ stats.total_reviews }}</strong>
+            <span>Total Reviews</span>
         </div>
     </section>
 
@@ -77,18 +101,21 @@
         <form action="{{ url_for('community_feedback') }}" method="post" class="feedback-form">
             <label>
                 Name
-                <input type="text" name="name" value="{{ session.get('username', '') }}" required>
+                <input type="text" name="name"
+                       value="{{ session.get('username', '') }}" required>
             </label>
             <label>
                 Email
-                <input type="email" name="email" value="{{ session.get('user_email', '') }}" required>
+                <input type="email" name="email"
+                       value="{{ session.get('user_email', '') }}" required>
             </label>
             <label class="feedback-message">
                 Message
                 <textarea name="message" rows="5" required></textarea>
             </label>
-            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </section>
+
 </main>
 {% endblock %}

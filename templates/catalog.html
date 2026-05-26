@@ -4,114 +4,110 @@
 
 {% block content %}
 <main class="catalog-page container">
+
     <div class="catalog-header">
         <p class="section-eyebrow">Catalog</p>
         <h1>Premium Headphones</h1>
-        <p>Filter the collection and build your cart from the full AudioZone range.</p>
+        <p>The full AudioZone range. Filter by brand, color, or price to find your match.</p>
     </div>
 
-    <div class="catalog-layout">
-        <aside class="filter-sidebar">
-            <div class="filter-group">
-                <label for="priceRange">Price Range</label>
-                <input type="range" id="priceRange" min="0" max="500" value="500" data-price-filter>
-                <span class="filter-value">Up to $<span data-price-value>500</span></span>
-            </div>
-            <div class="filter-group">
-                <h3>Brand</h3>
-                {% for brand in brands %}
-                <label class="check-row">
-                    <input type="checkbox" value="{{ brand }}" data-brand-filter>
-                    <span>{{ brand }}</span>
-                </label>
-                {% endfor %}
-            </div>
-            <div class="filter-group">
-                <h3>Color</h3>
-                {% for color in colors %}
-                <label class="check-row">
-                    <input type="checkbox" value="{{ color }}" data-color-filter>
-                    <span>{{ color }}</span>
-                </label>
-                {% endfor %}
-            </div>
-            <div class="filter-group">
-                <label class="check-row">
-                    <input type="checkbox" data-stock-filter>
-                    <span>In stock only</span>
-                </label>
-            </div>
-        </aside>
+    {# ── Headphones Grid ─────────────────────────────────────────
+         headphones is a dict loaded from data/headphones.json.
+         Keys are product names; values are dicts with price, stock,
+         description, image (URL), and colors (list of strings).
+         CSS grid is 3 columns — fills the full page width cleanly.
+    ─────────────────────────────────────────────────────────────── #}
+    <section class="catalog-products">
+        <div class="products-grid">
+            {% for headphone, details in headphones.items() %}
+            <div class="product-card"
+                 data-product-card
+                 data-price="{{ details.price }}"
+                 data-brand="{{ headphone.split()[0] }}"
+                 data-colors="{{ details.colors|join(',') }}"
+                 data-stock="{{ details.stock }}">
 
-        <section class="catalog-products">
-            <div class="products-grid">
-                {% for headphone, details in headphones.items() %}
-                <div class="product-card" data-product-card data-price="{{ details.price }}" data-brand="{{ headphone.split()[0] }}" data-colors="{{ details.colors|join(',') }}" data-stock="{{ details.stock }}">
-                    <div class="product-image">
-                        <img src="{{ details.image }}" alt="{{ headphone }}">
-                    </div>
-                    <div class="product-info">
-                        <h2>{{ headphone }}</h2>
-                        <p class="product-description">{{ details.description }}</p>
-                        <p class="product-price">${{ details.price }}</p>
-                        <p class="product-stock">In Stock: {{ details.stock }}</p>
-                        <form action="{{ url_for('add_to_cart') }}" method="post">
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <input type="hidden" name="headphone" value="{{ headphone }}">
-                            <label>Quantity</label>
-                            <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
-                            <label>Color</label>
-                            <select name="color">
-                                {% for color in details.colors %}
-                                    <option value="{{ color }}">{{ color }}</option>
-                                {% endfor %}
-                            </select>
-                            <button type="submit" class="btn btn-primary">Add to Cart</button>
-                        </form>
-
-                        {% with messages = get_flashed_messages(category_filter=[headphone]) %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="flash-message">{{ message }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                        {% with messages = get_flashed_messages(category_filter=[headphone ~ '_error']) %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="flash-message product-error">{{ message }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                    </div>
+                <div class="product-image">
+                    <img src="{{ details.image }}" alt="{{ headphone }}">
                 </div>
-                {% endfor %}
-            </div>
-        </section>
-    </div>
 
-    <section class="addons catalog-addons">
-        <h2>Add-ons & Accessories</h2>
-        <p>Premium audio accessories designed to complement your headphones.</p>
-        <div class="addons-grid">
-            {% for addon, details in addons.items() %}
-                <div class="addon-card">
-                    <div class="addon-info">
-                        <h2>{{ details.name }}</h2>
-                        <p class="addon-description">{{ details.description }}</p>
-                        <p class="addon-price">${{ details.price }}</p>
-                        <p class="addon-stock">In Stock: {{ details.stock }}</p>
-                        <form action="{{ url_for('add_to_cart') }}" method="post">
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <input type="hidden" name="addon" value="{{ details.name }}">
-                            <label>Quantity</label>
-                            <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
-                            <button type="submit" class="btn btn-secondary">Add to Cart</button>
-                        </form>
-                    </div>
+                <div class="product-info">
+                    <h2>{{ headphone }}</h2>
+                    <p class="product-description">{{ details.description }}</p>
+                    <p class="product-price">${{ details.price }}</p>
+                    <p class="product-stock">In Stock: {{ details.stock }}</p>
+
+                    {# Add-to-cart form — posts product name, color, quantity, and
+                       the current path so Flask can redirect back here after adding. #}
+                    <form action="{{ url_for('add_to_cart') }}" method="post">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <input type="hidden" name="headphone" value="{{ headphone }}">
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
+                        <label>Color</label>
+                        <select name="color">
+                            {% for color in details.colors %}
+                                <option value="{{ color }}">{{ color }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-block">Add to Cart</button>
+                    </form>
+
+                    {# Success flash — category matches the product name exactly.
+                       Shows "X added to cart" confirmation. #}
+                    {% with messages = get_flashed_messages(category_filter=[headphone]) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="flash-message">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    {# Error flash — category is product name + "_error".
+                       Shows stock warnings or invalid selection errors. #}
+                    {% with messages = get_flashed_messages(category_filter=[headphone ~ '_error']) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="flash-message product-error">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                 </div>
+            </div>
             {% endfor %}
         </div>
     </section>
+
+    {# ── Add-ons & Accessories ────────────────────────────────────
+         addons is loaded from data/addons.json.
+         Each addon has a name, description, price, stock.
+         Unlike headphones, addons have no color selection.
+         The hidden input uses name="addon" (not "headphone") so Flask
+         routes it through the addon branch in add_to_cart().
+    ─────────────────────────────────────────────────────────────── #}
+    <section class="addons catalog-addons" style="margin-top:4rem;">
+        <h2>Add-ons &amp; Accessories</h2>
+        <p>Premium audio accessories designed to complement your headphones.</p>
+        <div class="addons-grid">
+            {% for addon, details in addons.items() %}
+            <div class="addon-card">
+                <div class="addon-info">
+                    <h2>{{ details.name }}</h2>
+                    <p class="addon-description">{{ details.description }}</p>
+                    <p class="addon-price">${{ details.price }}</p>
+                    <p class="addon-stock">In Stock: {{ details.stock }}</p>
+                    <form action="{{ url_for('add_to_cart') }}" method="post">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <input type="hidden" name="addon" value="{{ details.name }}">
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" value="1" min="1" max="{{ details.stock }}">
+                        <button type="submit" class="btn btn-secondary btn-block">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
 </main>
 {% endblock %}

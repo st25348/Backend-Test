@@ -13,7 +13,10 @@
             <h1>AudioZone</h1>
             <p class="hero-subtitle">Premium Audio Experience</p>
             <p>Discover our curated collection of high-fidelity headphones.</p>
-            <a href="{{ url_for('catalog') }}" class="hero-link">Explore Collection →</a>
+            <a href="{{ url_for('catalog') }}" class="hero-link">
+                Explore Collection
+                <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bx-arrow-s-right.svg') }}" alt="">
+            </a>
         </div>
 
         <div class="hero-center"></div>
@@ -36,29 +39,6 @@
     </div>
     <div class="story-image">
         <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80" alt="Premium headphones on a bright surface">
-    </div>
-</section>
-
-<section class="stats-row container" aria-label="AudioZone community statistics">
-    <div class="stat-box">
-        <div class="stat-icon">💰</div>
-        <strong>$47,320</strong>
-        <span>Total Sales</span>
-    </div>
-    <div class="stat-box">
-        <div class="stat-icon">📦</div>
-        <strong>1,284</strong>
-        <span>Orders Completed</span>
-    </div>
-    <a class="stat-box" href="{{ url_for('community') }}">
-        <div class="stat-icon">😊</div>
-        <strong>967</strong>
-        <span>5-Star Ratings</span>
-    </a>
-    <div class="stat-box">
-        <div class="stat-icon">⭐</div>
-        <strong>1,142</strong>
-        <span>Total Reviews</span>
     </div>
 </section>
 
@@ -94,7 +74,10 @@
         {% endfor %}
     </div>
     <div class="section-action">
-        <a href="{{ url_for('catalog') }}" class="btn btn-primary">View Full Catalog →</a>
+        <a href="{{ url_for('catalog') }}" class="btn btn-primary">
+            View Full Catalog
+            <img class="icon icon-light" src="{{ url_for('static', filename='icons/svg/basic/bx-arrow-s-right.svg') }}" alt="">
+        </a>
     </div>
 </section>
 
@@ -104,7 +87,9 @@
         <p>Recent 4-5 star feedback from the AudioZone community.</p>
     </div>
     <div class="testimonial-carousel" data-carousel>
-        <button class="carousel-arrow carousel-prev" type="button" aria-label="Previous testimonial">‹</button>
+        <button class="carousel-arrow carousel-prev" type="button" aria-label="Previous testimonial">
+            <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bx-chevron-left.svg') }}" alt="">
+        </button>
         <div class="testimonial-track">
             {% for testimonial in testimonials %}
             <article class="testimonial-card">
@@ -115,7 +100,9 @@
             </article>
             {% endfor %}
         </div>
-        <button class="carousel-arrow carousel-next" type="button" aria-label="Next testimonial">›</button>
+        <button class="carousel-arrow carousel-next" type="button" aria-label="Next testimonial">
+            <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bx-chevron-right.svg') }}" alt="">
+        </button>
     </div>
 </section>
 {% endblock %}

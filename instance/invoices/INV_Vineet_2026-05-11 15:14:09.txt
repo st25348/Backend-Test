@@ -1,9 +1,0 @@
-Invoice Number: INV_Vineet_2026-05-11 15:14:09
-Customer Name: Vineet
-Date: 2026-05-11 15:14:09
-
-Items:
-  - Carrying case: $25 x 1 = $25
-
-Subtotal: $25
-Total: $25

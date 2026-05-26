@@ -53,7 +53,10 @@
                         <td class="order-total">${{ '%.2f' | format(order.total) }}</td>
                         <td class="order-actions-cell">
                             <div class="order-actions">
-                                <a href="{{ url_for('view_invoice', invoice_number=order.invoice_number) }}" class="btn-link">View →</a>
+                                <a href="{{ url_for('view_invoice', invoice_number=order.invoice_number) }}" class="btn-link">
+                                    View
+                                    <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bx-arrow-s-right.svg') }}" alt="">
+                                </a>
                                 <details class="download-menu">
                                     <summary class="btn btn-secondary btn-small">Download</summary>
                                     <div>

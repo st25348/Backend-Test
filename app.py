@@ -47,10 +47,6 @@ def reviews_db_path():
     os.makedirs(app.instance_path, exist_ok=True)
     return os.path.join(app.instance_path, 'community_reviews.db')
 
-def votes_db_path():
-    os.makedirs(app.instance_path, exist_ok=True)
-    return os.path.join(app.instance_path, 'product_votes.db')
-
 def feedback_db_path():
     os.makedirs(app.instance_path, exist_ok=True)
     return os.path.join(app.instance_path, 'feedback.db')
@@ -162,35 +158,35 @@ def get_public_testimonials(limit=None):
         testimonials = default_testimonials()
     return testimonials[:limit] if limit else testimonials
 
-
-# votes and ratings per product
-def get_product_feedback(headphones):
-    feedback = {name: {'votes': 0, 'average_rating': 0, 'rating_count': 0} for name in headphones}
-
+def get_community_stats():
+    stats = {
+        'total_sales': 0,
+        'orders_completed': 0,
+        'five_star_reviews': 0,
+        'total_reviews': 0,
+    }
     try:
-        with sqlite3.connect(votes_db_path()) as conn:
-            cursor = conn.cursor()
-            for product, votes in cursor.execute('SELECT product_name, votes FROM product_votes'):
-                if product in feedback:
-                    feedback[product]['votes'] = votes
+        with sqlite3.connect(orders_db_path()) as conn:
+            row = conn.execute('SELECT COALESCE(SUM(total), 0), COUNT(*) FROM orders').fetchone()
+            stats['total_sales'] = round(row[0] or 0, 2)
+            stats['orders_completed'] = row[1] or 0
     except sqlite3.Error:
         pass
 
     try:
         with sqlite3.connect(reviews_db_path()) as conn:
-            cursor = conn.cursor()
-            for product, rating_total, rating_count in cursor.execute('''
-                SELECT product_name, SUM(rating), COUNT(*)
+            row = conn.execute('''
+                SELECT
+                    SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END),
+                    COUNT(*)
                 FROM community_reviews
-                GROUP BY product_name
-            '''):
-                if product in feedback and rating_count:
-                    feedback[product]['average_rating'] = round(rating_total / rating_count, 1)
-                    feedback[product]['rating_count'] = rating_count
+            ''').fetchone()
+            stats['five_star_reviews'] = row[0] or 0
+            stats['total_reviews'] = row[1] or 0
     except sqlite3.Error:
         pass
 
-    return feedback
+    return stats
 
 
 # fetch single order for current user
@@ -306,15 +302,6 @@ def init_reviews_db():
             )
         ''')
 
-def init_votes_db():
-    with sqlite3.connect(votes_db_path()) as conn:
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS product_votes (
-                product_name TEXT PRIMARY KEY,
-                votes        INTEGER NOT NULL DEFAULT 0
-            )
-        ''')
-
 def init_feedback_db():
     with sqlite3.connect(feedback_db_path()) as conn:
         conn.execute('''
@@ -332,7 +319,6 @@ def initialize_data_base():
         migrate_invoice_storage()
         init_orders_db()
         init_reviews_db()
-        init_votes_db()
         init_feedback_db()
     except sqlite3.Error as e:
         print(f"Error initializing databases: {e}")
@@ -567,15 +553,12 @@ def update_product(product_name):
 @app.route('/')
 @app.route('/home')
 def home():
-    username           = session.get('username')
-    headphones, addons = load_data()
-    reopen_auth        = session.pop('reopen_auth', None)
+    headphones, _ = load_data()
+    reopen_auth   = session.pop('reopen_auth', None)
     return render_template(
         'index.html',
-        headphones   = headphones,
         featured     = load_featured_products(headphones),
         testimonials = get_public_testimonials(6),
-        username     = username,
         reopen_auth  = reopen_auth,
     )
 
@@ -583,14 +566,10 @@ def home():
 def catalog():
     headphones, addons = load_data()
     reopen_auth = session.pop('reopen_auth', None)
-    brands = sorted({name.split()[0] for name in headphones})
-    colors = sorted({color for details in headphones.values() for color in details.get('colors', [])})
     return render_template(
         'catalog.html',
         headphones  = headphones,
         addons      = addons,
-        brands      = brands,
-        colors      = colors,
         reopen_auth = reopen_auth,
     )
 
@@ -601,27 +580,9 @@ def community():
     return render_template(
         'community.html',
         headphones   = headphones,
-        feedback     = get_product_feedback(headphones),
-        testimonials = get_public_testimonials(),
+        stats        = get_community_stats(),
         reopen_auth  = reopen_auth,
     )
-
-@app.route('/community/vote', methods=['POST'])
-def community_vote():
-    product_name  = request.form.get('product_name', '').strip()
-    headphones, _ = load_data()
-    if product_name not in headphones:
-        flash("Product not found.", 'community_error')
-        return redirect(url_for('community'))
-    with sqlite3.connect(votes_db_path()) as conn:
-        conn.execute('''
-            INSERT INTO product_votes (product_name, votes)
-            VALUES (?, 1)
-            ON CONFLICT(product_name) DO UPDATE SET votes = votes + 1
-        ''', (product_name,))
-        conn.commit()
-    flash(f"Vote counted for {product_name}.", 'community_success')
-    return redirect(url_for('community'))
 
 @app.route('/community/review', methods=['POST'])
 def community_review():
@@ -651,7 +612,7 @@ def community_feedback():
     email   = request.form.get('email', '').strip()
     message = request.form.get('message', '').strip()
     if not name or not email or not message:
-        flash("Please complete every feedback field.", 'community_error')
+        flash("Please complete every question field.", 'community_error')
         return redirect(url_for('community'))
     with sqlite3.connect(feedback_db_path()) as conn:
         conn.execute('''
@@ -659,7 +620,7 @@ def community_feedback():
             VALUES (?, ?, ?)
         ''', (name, email, message))
         conn.commit()
-    flash("Feedback submitted. Thank you.", 'community_success')
+    flash("Question submitted. Thank you.", 'community_success')
     return redirect(url_for('community'))
 
 @app.route('/add_to_cart', methods=['POST'])

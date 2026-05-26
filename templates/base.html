@@ -12,15 +12,18 @@
 
     <nav>
         <div class="nav-container">
-            <div class="logo">🎧 AudioZone</div>
+            <div class="logo">
+                <img class="icon icon-light logo-icon" src="{{ url_for('static', filename='icons/svg/basic/bx-headphone-alt-2.svg') }}" alt="">
+                AudioZone
+            </div>
             <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="{{ url_for('catalog') }}">Catalog</a></li>
-                <li><a href="{{ url_for('community') }}">Community</a></li>
-                <li><a href="{{ url_for('orders') }}">Orders</a></li>
-                <li>
+                <li class="nav-link-item"><a href="{{ url_for('home') }}">Home</a></li>
+                <li class="nav-link-item"><a href="{{ url_for('catalog') }}">Catalog</a></li>
+                <li class="nav-link-item"><a href="{{ url_for('community') }}">Community</a></li>
+                <li class="nav-link-item"><a href="{{ url_for('orders') }}">Orders</a></li>
+                <li class="cart-nav">
                     <button class="cart-nav-button" type="button" aria-label="Open cart" aria-controls="cartDrawer">
-                        <span>🛒</span>
+                        <span><img src="/static/icons/svg/basic/bx-cart.svg" alt="Cart"></span>
                         {% if cart_item_count %}
                             <span class="cart-nav-count">{{ cart_item_count }}</span>
                         {% endif %}
@@ -71,7 +74,7 @@
                         </details>
                     </li>
                 {% else %}
-                    <li><a href="#" onclick="showPanel('login'); return false;">Login</a></li>
+                    <li class="account-nav"><a href="#" onclick="showPanel('login'); return false;">Login</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -89,7 +92,9 @@
                     {% if cart %}
                         <span class="cart-count">{{ cart|length }} item{{ 's' if cart|length != 1 }}</span>
                     {% endif %}
-                    <button class="cart-drawer-close" type="button" aria-label="Close cart">×</button>
+                    <button class="cart-drawer-close" type="button" aria-label="Close cart">
+                        <img class="icon icon-light" src="{{ url_for('static', filename='icons/svg/basic/bx-x-circle.svg') }}" alt="">
+                    </button>
                 </div>
             </div>
 
@@ -138,7 +143,10 @@
                         {% with messages = get_flashed_messages(category_filter=['promo']) %}
                             {% if messages %}
                                 {% for message in messages %}
-                                    <div class="flash-message promo-success">✓ {{ message }}</div>
+                                    <div class="flash-message promo-success">
+                                        <img class="icon icon-success" src="{{ url_for('static', filename='icons/svg/basic/bxs-check.svg') }}" alt="">
+                                        {{ message }}
+                                    </div>
                                 {% endfor %}
                             {% endif %}
                         {% endwith %}
@@ -146,7 +154,10 @@
                         {% with messages = get_flashed_messages(category_filter=['promo_error']) %}
                             {% if messages %}
                                 {% for message in messages %}
-                                    <div class="flash-message promo-error">✗ {{ message }}</div>
+                                    <div class="flash-message promo-error">
+                                        <img class="icon icon-danger" src="{{ url_for('static', filename='icons/svg/basic/bx-x-circle.svg') }}" alt="">
+                                        {{ message }}
+                                    </div>
                                 {% endfor %}
                             {% endif %}
                         {% endwith %}
@@ -166,7 +177,10 @@
                         </div>
                         <form action="{{ url_for('checkout') }}" method="post" class="checkout-form">
                             <input type="text" name="customer_name_checkout" placeholder="Your full name" value="{{ session.get('username', '') }}" required>
-                            <button type="submit" class="btn btn-primary btn-block">Checkout →</button>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                Checkout
+                                <img class="icon icon-light" src="{{ url_for('static', filename='icons/svg/basic/bx-arrow-s-right.svg') }}" alt="">
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -184,7 +198,10 @@
         <div class="auth-modal">
 
             <div class="auth-header">
-                <h2>🎧 AudioZone</h2>
+                <h2>
+                    <img class="icon auth-brand-icon" src="{{ url_for('static', filename='icons/svg/basic/bx-headphone-alt-2.svg') }}" alt="">
+                    AudioZone
+                </h2>
                 <p class="auth-subtitle">Premium Audio Experience</p>
             </div>
 
@@ -259,9 +276,12 @@
                 <div class="welcome-body">
                     <h3>Welcome back, {{ session.get('username', '') }}!</h3>
                     <p>Ready to find your perfect sound?</p>
-                    <div class="welcome-icon">🎵</div>
+                    <div class="welcome-icon">
+                        <img class="icon" src="{{ url_for('static', filename='icons/svg/basic/bx-music.svg') }}" alt="">
+                    </div>
                     <button class="btn btn-primary" onclick="dismissOverlay()" style="margin-top:1.25rem;">
-                        Continue →
+                        Continue
+                        <img class="icon icon-light" src="{{ url_for('static', filename='icons/svg/basic/bx-arrow-s-right.svg') }}" alt="">
                     </button>
                 </div>
             </div>
@@ -280,10 +300,18 @@
     <footer>
         <div class="footer-content">
             <div class="footer-social">
-                <a href="#" title="Twitter">🐦</a>
-                <a href="#" title="Instagram">📷</a>
-                <a href="#" title="Facebook">👍</a>
-                <a href="#" title="YouTube">📺</a>
+                <a href="#" title="Twitter" aria-label="Twitter">
+                    <img class="icon" src="{{ url_for('static', filename='icons/svg/brands/bx-twitter.svg') }}" alt="">
+                </a>
+                <a href="#" title="Instagram" aria-label="Instagram">
+                    <img class="icon" src="{{ url_for('static', filename='icons/svg/brands/bx-instagram-alt.svg') }}" alt="">
+                </a>
+                <a href="#" title="Facebook" aria-label="Facebook">
+                    <img class="icon" src="{{ url_for('static', filename='icons/svg/brands/bx-facebook-square.svg') }}" alt="">
+                </a>
+                <a href="#" title="YouTube" aria-label="YouTube">
+                    <img class="icon" src="{{ url_for('static', filename='icons/svg/brands/bx-youtube.svg') }}" alt="">
+                </a>
             </div>
             <div class="footer-links">
                 <a href="/about">About Us</a>
@@ -298,7 +326,9 @@
         </div>
     </footer>
 
-    <button class="back-to-top" id="back-to-top">↑</button>
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+        <img class="icon icon-light" src="{{ url_for('static', filename='icons/svg/basic/bx-arrow-up-circle.svg') }}" alt="">
+    </button>
     <script src="/static/javascript/script.js"></script>
 </body>
 </html>

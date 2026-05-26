@@ -131,13 +131,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Form error → reopen correct panel so error message is visible
         showPanel(reopenAuth);
 
-    } else if (!isLoggedIn) {
-        // Logged out (fresh visit or just hit logout) → force login panel
-        // No way to dismiss without logging in
-        showPanel('login');
-
     }
-    // Logged in, no special flag → overlay stays hidden, browse freely
+    // Otherwise the overlay stays hidden and visitors can browse freely.
 });
 
 // ── Catalog filters ───────────────────────────────────────────────

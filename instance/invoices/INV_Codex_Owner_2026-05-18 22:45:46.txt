@@ -1,9 +1,0 @@
-Invoice Number: INV_Codex_Owner_2026-05-18 22:45:46
-Customer Name: Codex Owner
-Date: 2026-05-18 22:45:46
-
-Items:
-  - Airpods pro (White): $249 x 2 = $498
-
-Subtotal: $498
-Total: $498
